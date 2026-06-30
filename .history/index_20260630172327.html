@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mtalisi Family Tree</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        margin: 0;
+        padding: 20px;
+    }
+    h1 {
+        text-align: center;
+        color: #333;
+    }
+    .tree-container {
+        width: 100%;
+        overflow-x: auto; /* Allows scrolling for wide trees */
+        padding-bottom: 20px;
+    }
+    
+    /* Tree CSS Logic */
+    .tree ul {
+        padding-top: 20px; position: relative;
+        transition: all 0.5s;
+        display: flex;
+        justify-content: center;
+    }
+    .tree li {
+        float: left; text-align: center;
+        list-style-type: none;
+        position: relative;
+        padding: 20px 5px 0 5px;
+        transition: all 0.5s;
+    }
+
+    /* Pseudo elements to draw the connection lines */
+    .tree li::before, .tree li::after {
+        content: '';
+        position: absolute; top: 0; right: 50%;
+        border-top: 2px solid #ccc;
+        width: 50%; height: 20px;
+    }
+    .tree li::after {
+        right: auto; left: 50%;
+        border-left: 2px solid #ccc;
+    }
+
+    /* Clean up the lines for the first and last child */
+    .tree li:only-child::after, .tree li:only-child::before {
+        display: none;
+    }
+    .tree li:only-child { padding-top: 0; }
+    .tree li:first-child::before, .tree li:last-child::after {
+        border: 0 none;
+    }
+    .tree li:last-child::before {
+        border-right: 2px solid #ccc;
+        border-radius: 0 5px 0 0;
+    }
+    .tree li:first-child::after {
+        border-radius: 5px 0 0 0;
+    }
+
+    /* Draw the downward line from parents */
+    .tree ul ul::before {
+        content: '';
+        position: absolute; top: 0; left: 50%;
+        border-left: 2px solid #ccc;
+        width: 0; height: 20px;
+        transform: translateX(-50%);
+    }
+
+    /* Node Styling */
+    .tree li .node {
+        border: 2px solid #8f8f8f;
+        padding: 10px 15px;
+        text-decoration: none;
+        color: #333;
+        font-size: 14px;
+        display: inline-block;
+        border-radius: 8px;
+        background-color: #fff;
+        transition: all 0.5s;
+        white-space: nowrap;
+    }
+    
+    .tree li .node.root { background-color: #d4edda; border-color: #28a745; font-weight: bold; }
+    .tree li .node.wife { background-color: #f8d7da; border-color: #dc3545; }
+    .tree li .node.child { background-color: #cce5ff; border-color: #007bff; }
+    
+    .tree li .node:hover {
+        background-color: #e2e2e2;
+        border-color: #333;
+    }
+</style>
+</head>
+<body>
+
+<h1>The Mtalisi Family Tree[cite: 1]</h1>
+
+<div class="tree-container">
+    <div class="tree">
+        <ul>
+            <li>
+                <div class="node root">Mtalisi[cite: 1]</div>
+                <ul>
+                    <!-- 1st Wife Branch -->
+                    <li>
+                        <div class="node wife">1st Wife: Ma Moyo (Makhumalo)[cite: 1]</div>
+                        <ul>
+                            <li>
+                                <div class="node child">Msindo (Cephas)[cite: 1]</div>
+                                <ul>
+                                    <li><div class="node wife">1st Wife: Ma Sibanda[cite: 1]</div>
+                                        <ul>
+                                            <li><div class="node child">Rita[cite: 1]</div></li>
+                                            <li><div class="node child">Dorothy[cite: 1]</div></li>
+                                            <li><div class="node child">Robert[cite: 1]</div></li>
+                                            <li><div class="node child">Ebbie[cite: 1]</div></li>
+                                            <li><div class="node child">Dickson[cite: 1]</div></li>
+                                            <li><div class="node child">Promise[cite: 1]</div></li>
+                                        </ul>
+                                    </li>
+                                    <li><div class="node wife">2nd Wife: Agnes Mafu[cite: 1]</div>
+                                        <ul>
+                                            <li><div class="node child">Herta (Naka Eunice)[cite: 1]</div></li>
+                                        </ul>
+                                    </li>
+                                    <li><div class="node wife">3rd Wife: Sofi (Ma Mpofu)[cite: 1]</div>
+                                        <ul>
+                                            <li><div class="node child">Nehemiah (Seka Thuse)[cite: 1]</div></li>
+                                            <li><div class="node child">Jeconiah[cite: 1]</div></li>
+                                            <li><div class="node child">Vilet (na Mandla)[cite: 1]</div></li>
+                                            <li><div class="node child">Nico (Sama Bhebhe)[cite: 1]</div></li>
+                                            <li><div class="node child">Jabu (Seka Siboni)[cite: 1]</div></li>
+                                            <li><div class="node child">Thoko[cite: 1]</div></li>
+                                        </ul>
+                                    </li>
+                                    <li><div class="node wife">4th Wife: Dandani (Magumbi)[cite: 1]</div>
+                                        <ul>
+                                            <li><div class="node child">Makheyi (Sama Bhebhe Fulunye)[cite: 1]</div></li>
+                                            <li><div class="node child">Sis G (Na Thobe)[cite: 1]</div></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li><div class="node child">Gumi (Na Joshua)[cite: 1]</div></li>
+                            <li><div class="node child">Khukhuzana (Na Selina)[cite: 1]</div></li>
+                            <li>
+                                <div class="node child">Hlanya (Mkhekhelezi)[cite: 1]</div>
+                                <ul>
+                                    <li><div class="node wife">Wife: Lezzie (Ma Nkala)[cite: 1]</div>
+                                        <ul>
+                                            <li><div class="node child">Henry (Seka Samu)[cite: 1]</div></li>
+                                            <li><div class="node child">Harvey (Seka Sehlu)[cite: 1]</div></li>
+                                            <li><div class="node child">Playford (Mzethi)[cite: 1]</div></li>
+                                            <li><div class="node child">Dayina[cite: 1]</div></li>
+                                            <li><div class="node child">Obed (Seka Bheki)[cite: 1]</div></li>
+                                            <li><div class="node child">Sithembile[cite: 1]</div></li>
+                                            <li><div class="node child">Danisa[cite: 1]</div></li>
+                                            <li><div class="node child">Levious (Seka Mthae)[cite: 1]</div></li>
+                                            <li><div class="node child">Salvinah (Seka Gugu)[cite: 1]</div></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li><div class="node child">Bhenga[cite: 1]</div></li>
+                        </ul>
+                    </li>
+
+                    <!-- 2nd Wife Branch -->
+                    <li>
+                        <div class="node wife">2nd Wife: MaMoyo (Mnawakhe)[cite: 1]</div>
+                        <ul>
+                            <li>
+                                <div class="node child">Baleni[cite: 1]</div>
+                                <ul>
+                                    <li><div class="node wife">1st Wife: Ma Ngwenya[cite: 1]</div>
+                                        <ul>
+                                            <li><div class="node child">Mgoli[cite: 1]</div></li>
+                                            <li><div class="node child">Bhoyi[cite: 1]</div></li>
+                                        </ul>
+                                    </li>
+                                    <li><div class="node wife">2nd Wife: Magagula[cite: 1]</div>
+                                        <ul>
+                                            <li><div class="node child">Nesi[cite: 1]</div></li>
+                                            <li><div class="node child">Sibusisiwe (Dade)[cite: 1]</div></li>
+                                            <li><div class="node child">Sethi (Nana)[cite: 1]</div></li>
+                                        </ul>
+                                    </li>
+                                    <li><div class="node wife">3rd Wife: Mamoyo[cite: 1]</div>
+                                        <ul>
+                                            <li><div class="node child">Themba[cite: 1]</div></li>
+                                            <li><div class="node child">Sdudla[cite: 1]</div></li>
+                                            <li><div class="node child">Filisiya[cite: 1]</div></li>
+                                        </ul>
+                                    </li>
+                                    <li><div class="node wife">4th Wife: Mandlovu[cite: 1]</div>
+                                        <ul>
+                                            <li><div class="node child">Alpheos[cite: 1]</div></li>
+                                            <li><div class="node child">Sarah[cite: 1]</div></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li><div class="node child">Emeli (Na Deliwe)[cite: 1]</div></li>
+                            <li>
+                                <div class="node child">Phawuli[cite: 1]</div>
+                                <ul>
+                                    <li><div class="node wife">1st Wife: Monica (Ma Dube)[cite: 1]</div></li>
+                                    <li><div class="node wife">2nd Wife: MaDongola[cite: 1]</div>
+                                        <ul>
+                                            <li><div class="node child">Sikhangezile[cite: 1]</div></li>
+                                            <li><div class="node child">Sikhangele[cite: 1]</div></li>
+                                            <li><div class="node child">Simangele[cite: 1]</div></li>
+                                            <li><div class="node child">Nkosana[cite: 1]</div></li>
+                                            <li><div class="node child">Nobuhle[cite: 1]</div></li>
+                                            <li><div class="node child">Makhosazana[cite: 1]</div></li>
+                                            <li><div class="node child">Musawenkosi[cite: 1]</div></li>
+                                        </ul>
+                                    </li>
+                                    <li><div class="node wife">3rd Wife: Masitsha[cite: 1]</div>
+                                        <ul>
+                                            <li><div class="node child">Khumbulani (Mqha)[cite: 1]</div></li>
+                                            <li><div class="node child">Mpiyabo[cite: 1]</div></li>
+                                            <li><div class="node child">Bhekusizi[cite: 1]</div></li>
+                                            <li><div class="node child">Sifanjani[cite: 1]</div></li>
+                                            <li><div class="node child">Thembelani[cite: 1]</div></li>
+                                            <li><div class="node child">Likhwanyana[cite: 1]</div></li>
+                                            <li><div class="node child">Kwazinkosi[cite: 1]</div></li>
+                                        </ul>
+                                    </li>
+                                    <li><div class="node wife">Other Women[cite: 1]</div>
+                                        <ul>
+                                            <li><div class="node child">Grenja[cite: 1]</div></li>
+                                            <li><div class="node child">Thameni[cite: 1]</div></li>
+                                            <li><div class="node child">Vusa[cite: 1]</div></li>
+                                            <li><div class="node child">Mlamuli[cite: 1]</div></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- 3rd Wife Branch -->
+                    <li>
+                        <div class="node wife">3rd Wife: Ma Dube (naka Ganda)[cite: 1]</div>
+                        <ul>
+                            <li><div class="node child">Makhohliso (Naka Khana)[cite: 1]</div></li>
+                            <li>
+                                <div class="node child">Ganda[cite: 1]</div>
+                                <ul>
+                                    <li><div class="node wife">1st Wife: (Ma Dube)[cite: 1]</div>
+                                        <ul>
+                                            <li><div class="node child">Zale[cite: 1]</div></li>
+                                            <li><div class="node child">Rebecca[cite: 1]</div></li>
+                                            <li><div class="node child">Thiwe (late)[cite: 1]</div></li>
+                                            <li><div class="node child">Sibongile (late)[cite: 1]</div></li>
+                                            <li><div class="node child">Melodisi[cite: 1]</div></li>
+                                        </ul>
+                                    </li>
+                                    <li><div class="node wife">2nd Wife: MaGagula[cite: 1]</div>
+                                        <ul>
+                                            <li><div class="node child">Zenzo (late)[cite: 1]</div></li>
+                                            <li><div class="node child">Aupa[cite: 1]</div></li>
+                                            <li><div class="node child">Dumisani (Late)[cite: 1]</div></li>
+                                            <li><div class="node child">Sibangani[cite: 1]</div></li>
+                                            <li><div class="node child">Thefiya[cite: 1]</div></li>
+                                            <li><div class="node child">Ngqala[cite: 1]</div></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <div class="node child">Nani[cite: 1]</div>
+                                <ul>
+                                    <li><div class="node wife">1st Wife: (Ma Mpofu)[cite: 1]</div>
+                                        <ul>
+                                            <li><div class="node child">Gladmore (More)[cite: 1]</div></li>
+                                            <li><div class="node child">Gladys (Late)[cite: 1]</div></li>
+                                            <li><div class="node child">Gladwin, Mhlawuli (Late)[cite: 1]</div></li>
+                                            <li><div class="node child">Garnet (late)[cite: 1]</div></li>
+                                            <li><div class="node child">Gardener, Mthulisi[cite: 1]</div></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li><div class="node child">Marry (Na Diliza)[cite: 1]</div></li>
+                            <li><div class="node child">Sosi (Naka Lathi)[cite: 1]</div></li>
+                            <li><div class="node child">Ntombana (Naka Joe)[cite: 1]</div></li>
+                        </ul>
+                    </li>
+
+                    <!-- 4th Wife Branch -->
+                    <li>
+                        <div class="node wife">4th Wife: owayevele e malele[cite: 1]</div>
+                        <ul>
+                            <li>
+                                <div class="node child">Philemon[cite: 1]</div>
+                                <ul>
+                                    <li><div class="node wife">1st Wife: Ma Nyembezi[cite: 1]</div>
+                                        <ul>
+                                            <li><div class="node child">Rose[cite: 1]</div></li>
+                                        </ul>
+                                    </li>
+                                    <li><div class="node wife">2nd Wife: MaSibanda[cite: 1]</div>
+                                        <ul>
+                                            <li><div class="node child">Hopewell[cite: 1]</div></li>
+                                            <li><div class="node child">Irine[cite: 1]</div></li>
+                                            <li><div class="node child">Charm (Late)[cite: 1]</div></li>
+                                            <li><div class="node child">Thembinkosi[cite: 1]</div></li>
+                                            <li><div class="node child">Doughton[cite: 1]</div></li>
+                                            <li><div class="node child">Danford[cite: 1]</div></li>
+                                        </ul>
+                                    </li>
+                                    <li><div class="node wife">3rd Wife: Madube[cite: 1]</div>
+                                        <ul>
+                                            <li><div class="node child">Brighton[cite: 1]</div></li>
+                                            <li><div class="node child">Simangaliphi (Late)[cite: 1]</div></li>
+                                            <li><div class="node child">Silindelumusa (Late)[cite: 1]</div></li>
+                                            <li><div class="node child">Sikhathele[cite: 1]</div></li>
+                                            <li><div class="node child">Ntombizodwa[cite: 1]</div></li>
+                                            <li><div class="node child">Xolani[cite: 1]</div></li>
+                                            <li><div class="node child">Cleopas[cite: 1]</div></li>
+                                            <li><div class="node child">Last[cite: 1]</div></li>
+                                            <li><div class="node child">Painford[cite: 1]</div></li>
+                                        </ul>
+                                    </li>
+                                    <li><div class="node wife">4th Wife: MaNyathi[cite: 1]</div>
+                                        <ul>
+                                            <li><div class="node child">Onias[cite: 1]</div></li>
+                                            <li><div class="node child">Bowen[cite: 1]</div></li>
+                                            <li><div class="node child">Tholakele[cite: 1]</div></li>
+                                            <li><div class="node child">Siduduzile[cite: 1]</div></li>
+                                            <li><div class="node child">Sithulisiwe[cite: 1]</div></li>
+                                            <li><div class="node child">Obvious[cite: 1]</div></li>
+                                        </ul>
+                                    </li>
+                                    <li><div class="node wife">5th Wife: Ma Moyo (Ka Baleni)[cite: 1]</div>
+                                        <ul>
+                                            <li><div class="node child">Mkhululi[cite: 1]</div></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inzalo KaMtalisi - Family Tree</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['Lora', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        paper: {
+                            DEFAULT: '#FAF8F5',
+                            dark: '#F0EBE1',
+                            card: '#FFFFFF'
+                        },
+                        ink: {
+                            light: '#78716C', // stone-500
+                            DEFAULT: '#44403C', // stone-700
+                            dark: '#1C1917' // stone-900
+                        },
+                        house1: '#991b1b',
+                        house2: '#1e3a8a',
+                        house3: '#065f46',
+                        house4: '#9a3412',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #FAF8F5;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+        }
+        
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d6d3d1;
+            border-radius: 8px;
+        }
+        
+        .tree-line::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 24px;
+            bottom: 0;
+            width: 2px;
+            background: #E7E5E4;
+            border-radius: 2px;
+        }
+        
+        .human-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .human-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="text-ink font-sans min-h-screen flex flex-col antialiased selection:bg-stone-200">
+
+    <header class="py-10 px-4 md:px-8 max-w-7xl mx-auto w-full flex flex-col items-center text-center border-b border-stone-200/60 mb-8">
+        <span class="text-xs uppercase tracking-[0.2em] text-ink-light font-medium mb-2">The Family Archive of</span>
+        <h1 class="text-4xl md:text-5xl font-serif font-semibold tracking-tight text-ink-dark">Inzalo KaMtalisi</h1>
+        <p class="text-sm text-ink-light mt-4 max-w-lg leading-relaxed">
+            A digital preservation of the descendants and genealogy of the Patriarch Mtalisi, compiled originally by Vezi.
+        </p>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 pb-12 flex flex-col lg:flex-row gap-8 items-start">
+
+        <div class="w-full lg:w-2/3 flex flex-col gap-6">
+            
+            <div class="flex flex-wrap gap-2 justify-center lg:justify-start pb-4 border-b border-stone-200/60">
+                <button onclick="filterByHouse('all')" id="filter-all" class="house-filter px-4 py-1.5 text-sm font-medium rounded-full bg-ink-dark text-white transition-all">Complete Tree</button>
+                <button onclick="filterByHouse('house1')" id="filter-house1" class="house-filter px-4 py-1.5 text-sm font-medium rounded-full bg-transparent text-ink-light hover:bg-stone-100 transition-all border border-stone-200">House of Makhumalo</button>
+                <button onclick="filterByHouse('house2')" id="filter-house2" class="house-filter px-4 py-1.5 text-sm font-medium rounded-full bg-transparent text-ink-light hover:bg-stone-100 transition-all border border-stone-200">House of Mnawakhe</button>
+                <button onclick="filterByHouse('house3')" id="filter-house3" class="house-filter px-4 py-1.5 text-sm font-medium rounded-full bg-transparent text-ink-light hover:bg-stone-100 transition-all border border-stone-200">House of Ma Dube</button>
+                <button onclick="filterByHouse('house4')" id="filter-house4" class="house-filter px-4 py-1.5 text-sm font-medium rounded-full bg-transparent text-ink-light hover:bg-stone-100 transition-all border border-stone-200">House of Malele</button>
+            </div>
+
+            <div class="flex justify-between items-center px-2">
+                <span class="text-xs text-ink-light italic">Select any family member to view their complete record.</span>
+                <div class="flex gap-3 text-sm font-medium text-ink-light">
+                    <button onclick="toggleAllTrees(true)" class="hover:text-ink-dark transition-colors">Expand Branches</button>
+                    <span>|</span>
+                    <button onclick="toggleAllTrees(false)" class="hover:text-ink-dark transition-colors">Fold Branches</button>
+                </div>
+            </div>
+
+            <div class="bg-paper-card rounded-2xl shadow-sm border border-stone-200 p-6 md:p-10">
+                
+                <div class="flex flex-col items-center border-b border-stone-200 pb-12 mb-12 relative">
+                    <div onclick="selectMember('mtalisi')" class="cursor-pointer human-card group flex flex-col items-center bg-paper-card text-ink-dark px-10 py-6 rounded-2xl border border-stone-200 shadow-md text-center max-w-sm relative z-10">
+                        <span class="text-[10px] uppercase tracking-widest font-semibold text-stone-400 mb-1">Generation I &middot; Patriarch</span>
+                        <h3 class="font-serif text-3xl font-semibold text-ink-dark group-hover:text-stone-600 transition-colors">Mtalisi</h3>
+                        <p class="text-xs text-stone-500 mt-2 font-serif italic">Founding Ancestor of the Clan</p>
+                    </div>
+                    <div class="absolute bottom-0 w-px h-12 bg-stone-300"></div>
+                </div>
+
+                <div class="space-y-16">
+                    <div id="tree-house1" class="house-section relative pl-6 border-l-[3px] border-red-900/20">
+                        <div class="mb-6">
+                            <h4 class="text-lg font-serif font-semibold text-red-950">House of Ma Moyo (Makhumalo)</h4>
+                            <p class="text-sm text-stone-500 font-serif italic">First Wife &middot; The Eldest Branch</p>
+                        </div>
+                        <div id="house1-children-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                    </div>
+
+                    <div id="tree-house2" class="house-section relative pl-6 border-l-[3px] border-indigo-900/20">
+                        <div class="mb-6">
+                            <h4 class="text-lg font-serif font-semibold text-indigo-950">House of MaMoyo (Mnawakhe)</h4>
+                            <p class="text-sm text-stone-500 font-serif italic">Second Wife</p>
+                        </div>
+                        <div id="house2-children-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                    </div>
+
+                    <div id="tree-house3" class="house-section relative pl-6 border-l-[3px] border-emerald-900/20">
+                        <div class="mb-6">
+                            <h4 class="text-lg font-serif font-semibold text-emerald-950">House of Ma Dube (Naka Ganda)</h4>
+                            <p class="text-sm text-stone-500 font-serif italic">Third Wife</p>
+                        </div>
+                        <div id="house3-children-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                    </div>
+
+                    <div id="tree-house4" class="house-section relative pl-6 border-l-[3px] border-amber-900/20">
+                        <div class="mb-6">
+                            <h4 class="text-lg font-serif font-semibold text-amber-950">House of Malele (Naka Philemon)</h4>
+                            <p class="text-sm text-stone-500 font-serif italic">Fourth Wife</p>
+                        </div>
+                        <div id="house4-children-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full lg:w-1/3 sticky top-8">
+            <div class="bg-paper-card rounded-2xl shadow-lg shadow-stone-200/50 border border-stone-200 p-8 flex flex-col gap-6">
+                
+                <div class="border-b border-stone-200/60 pb-6">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[10px] tracking-widest text-stone-400 font-semibold uppercase">Family Record</span>
+                        <span id="dossier-status-badge" class="px-2.5 py-1 bg-stone-100 text-stone-500 rounded-full text-[10px] font-medium hidden flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-stone-400"></span> Deceased
+                        </span>
+                    </div>
+                    <h2 id="dossier-name" class="text-3xl font-serif font-semibold text-ink-dark mt-1">Mtalisi</h2>
+                    <p id="dossier-generation" class="text-sm text-stone-500 font-serif italic mt-2">Generation I</p>
+                </div>
+
+                <div class="space-y-6 text-sm">
+                    
+                    <div class="grid grid-cols-2 gap-6">
+                        <div>
+                            <span class="text-stone-400 text-[10px] font-semibold uppercase tracking-wider block mb-1">Father</span>
+                            <span id="dossier-father" class="font-serif text-ink-dark text-base">-</span>
+                        </div>
+                        <div>
+                            <span class="text-stone-400 text-[10px] font-semibold uppercase tracking-wider block mb-1">Mother</span>
+                            <span id="dossier-mother" class="font-serif text-ink-dark text-base">-</span>
+                        </div>
+                    </div>
+
+                    <div id="dossier-wives-section" class="pt-4 border-t border-stone-100">
+                        <span class="text-stone-400 text-[10px] font-semibold uppercase tracking-wider block mb-3">Spouses / Houses</span>
+                        <div id="dossier-wives-list" class="flex flex-col gap-2">
+                            </div>
+                    </div>
+
+                    <div id="dossier-siblings-section" class="pt-4 border-t border-stone-100">
+                        <span class="text-stone-400 text-[10px] font-semibold uppercase tracking-wider block mb-3">Siblings</span>
+                        <div id="dossier-siblings-list" class="flex flex-wrap gap-2 max-h-[140px] overflow-y-auto pr-2">
+                            </div>
+                    </div>
+
+                    <div id="dossier-descendants-section" class="pt-4 border-t border-stone-100">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-stone-400 text-[10px] font-semibold uppercase tracking-wider">Direct Children</span>
+                            <span id="dossier-descendants-count" class="text-stone-400 font-serif italic text-xs">15 total</span>
+                        </div>
+                        <div id="dossier-descendants-list" class="flex flex-wrap gap-2 max-h-[200px] overflow-y-auto pr-2">
+                            </div>
+                    </div>
+                </div>
+
+                <div class="mt-2 pt-6 border-t border-stone-200">
+                    <label class="text-stone-400 text-[10px] font-semibold uppercase tracking-wider block mb-2">Personal Annotations</label>
+                    <textarea id="dossier-note-area" oninput="saveLocalNote()" placeholder="Add dates, memories, or notes for this relative..." class="w-full h-24 bg-paper rounded-xl border border-stone-200 p-3 text-sm text-ink-dark font-serif placeholder:text-stone-400 focus:border-stone-400 focus:ring-0 focus:outline-none resize-none transition-colors"></textarea>
+                    <div class="mt-2 flex justify-end">
+                        <button onclick="clearLocalNote()" class="text-[10px] text-stone-400 hover:text-red-500 uppercase tracking-wide font-medium transition-colors">Clear Annotations</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="py-8 text-center border-t border-stone-200/60 text-stone-400 text-xs font-serif italic max-w-7xl mx-auto w-full">
+        <p>Restructured for readability &middot; Inzalo KaMtalisi Archive &copy; 2026</p>
+    </footer>
+
+    <script>
+        // Data Structure remains completely unchanged as requested
+        const familyData = {
+            "mtalisi": {
+                id: "mtalisi", name: "Mtalisi", gen: 1, father: "None", mother: "None",
+                wives: [
+                    { name: "Ma Moyo (known as Makhumalo)", children: ["msindo", "gumi", "khukhuzana", "hlanya", "bhenga"] },
+                    { name: "MaMoyo (Mnawakhe ka Ma Khumalo)", children: ["baleni", "emeli", "phawuli"] },
+                    { name: "Ma Dube (naka Ganda)", children: ["makhohliso", "ganda", "nani", "marry", "sosi", "ntombana"] },
+                    { name: "Owayevele e Malele (naka Philemon)", children: ["philemon"] }
+                ],
+                house: "all"
+            },
+            
+            // GENERATION 2
+            "msindo": { id: "msindo", name: "Msindo (Cephas)", gen: 2, father: "Mtalisi", mother: "Ma Moyo (Makhumalo)", house: "house1",
+                wives: [
+                    { name: "Ma Sibanda", children: ["rita", "dorothy", "robert", "ebbie", "dickson", "promise"] },
+                    { name: "Agnes Mafu", children: ["herta"] },
+                    { name: "Sofi (Ma Mpofu)", children: ["nehemiah", "jeconiah", "vilet", "nico", "jabu", "thoko"] },
+                    { name: "Dandani (Magumbi)", children: ["makheyi", "sis_g"] }
+                ]
+            },
+            "gumi": { id: "gumi", name: "Gumi (Na Joshua)", gen: 2, father: "Mtalisi", mother: "Ma Moyo (Makhumalo)", house: "house1" },
+            "khukhuzana": { id: "khukhuzana", name: "Khukhuzana (Na Selina)", gen: 2, father: "Mtalisi", mother: "Ma Moyo (Makhumalo)", house: "house1" },
+            "hlanya": { id: "hlanya", name: "Hlanya (Mkhekhelezi)", gen: 2, father: "Mtalisi", mother: "Ma Moyo (Makhumalo)", house: "house1",
+                wives: [{ name: "Lezzie (Ma Nkala)", children: ["henry", "harvey", "playford", "dayina", "obed", "sithembile", "danisa", "levious", "salvinah"] }]
+            },
+            "bhenga": { id: "bhenga", name: "Bhenga", gen: 2, father: "Mtalisi", mother: "Ma Moyo (Makhumalo)", house: "house1" },
+
+            "baleni": { id: "baleni", name: "Baleni", gen: 2, father: "Mtalisi", mother: "MaMoyo (Mnawakhe)", house: "house2",
+                wives: [
+                    { name: "Ma Ngwenya", children: ["mgoli", "bhoyi"] },
+                    { name: "Magagula", children: ["nesi", "sibusisiwe", "sethi"] },
+                    { name: "Ma Moyo", children: ["themba", "sdudla", "filisiya"] },
+                    { name: "Ma Ndlovu", children: ["alpheos", "sarah"] }
+                ]
+            },
+            "emeli": { id: "emeli", name: "Emeli (Na Deliwe)", gen: 2, father: "Mtalisi", mother: "MaMoyo (Mnawakhe)", house: "house2" },
+            "phawuli": { id: "phawuli", name: "Phawuli", gen: 2, father: "Mtalisi", mother: "MaMoyo (Mnawakhe)", house: "house2",
+                wives: [
+                    { name: "Monica (Ma Dube)", children: [] },
+                    { name: "MaDongola", children: ["sikhangezile", "sikhangele", "simangele", "nkosana", "nobuhle", "makhosazana", "musawenkosi"] },
+                    { name: "MaSitsha", children: ["khumbulani", "mpiyabo", "bhekusizi", "sifanjani", "thembelani", "likhwanyana", "kwazinkosi"] },
+                    { name: "Other Women", children: ["grenja", "thameni", "vusa", "mlamuli"] }
+                ]
+            },
+
+            "makhohliso": { id: "makhohliso", name: "Makhohliso (Naka Khana)", gen: 2, father: "Mtalisi", mother: "Ma Dube", house: "house3" },
+            "ganda": { id: "ganda", name: "Ganda", gen: 2, father: "Mtalisi", mother: "Ma Dube", house: "house3",
+                wives: [
+                    { name: "Ma Dube", children: ["zale", "rebecca", "thiwe", "sibongile", "melodisi"] },
+                    { name: "MaGagula (Owayethethwe Ngu Baleni)", children: ["zenzo", "aupa", "dumisani", "sibangani", "thefiya", "ngqala"] }
+                ]
+            },
+            "nani": { id: "nani", name: "Nani", gen: 2, father: "Mtalisi", mother: "Ma Dube", house: "house3",
+                wives: [{ name: "Ma Mpofu", children: ["gladmore", "gladys", "gladwin", "garnet", "gardener"] }]
+            },
+            "marry": { id: "marry", name: "Marry (Na Diliza)", gen: 2, father: "Mtalisi", mother: "Ma Dube", house: "house3" },
+            "sosi": { id: "sosi", name: "Sosi (Naka Lathi)", gen: 2, father: "Mtalisi", mother: "Ma Dube", house: "house3" },
+            "ntombana": { id: "ntombana", name: "Ntombana (Naka Joe)", gen: 2, father: "Mtalisi", mother: "Ma Dube", house: "house3" },
+
+            "philemon": { id: "philemon", name: "Philemon", gen: 2, father: "Mtalisi", mother: "Malele", house: "house4",
+                wives: [
+                    { name: "Ma Nyembezi", children: ["rose"] },
+                    { name: "MaSibanda", children: ["hopewell", "irine", "charm", "thembinkosi", "doughton", "danford"] },
+                    { name: "MaDube", children: ["brighton", "simangaliphi", "silindelumusa", "sikhathele", "ntombizodwa", "xolani", "cleopas", "last", "painford"] },
+                    { name: "MaNyathi", children: ["onias", "bowen", "tholakele", "siduduzile", "sithulisiwe", "obvious"] },
+                    { name: "Ma Moyo (Ka Baleni)", children: ["mkhululi"] }
+                ]
+            },
+
+            // GENERATION 3
+            "rita": { id: "rita", name: "Rita", gen: 3, father: "Msindo", mother: "Ma Sibanda", house: "house1" },
+            "dorothy": { id: "dorothy", name: "Dorothy", gen: 3, father: "Msindo", mother: "Ma Sibanda", house: "house1" },
+            "robert": { id: "robert", name: "Robert", gen: 3, father: "Msindo", mother: "Ma Sibanda", house: "house1" },
+            "ebbie": { id: "ebbie", name: "Ebbie", gen: 3, father: "Msindo", mother: "Ma Sibanda", house: "house1" },
+            "dickson": { id: "dickson", name: "Dickson", gen: 3, father: "Msindo", mother: "Ma Sibanda", house: "house1" },
+            "promise": { id: "promise", name: "Promise", gen: 3, father: "Msindo", mother: "Ma Sibanda", house: "house1" },
+            "herta": { id: "herta", name: "Herta (Naka Eunice)", gen: 3, father: "Msindo", mother: "Agnes Mafu", house: "house1" },
+            "nehemiah": { id: "nehemiah", name: "Nehemiah (Seka Thuse)", gen: 3, father: "Msindo", mother: "Sofi (Ma Mpofu)", house: "house1" },
+            "jeconiah": { id: "jeconiah", name: "Jeconiah", gen: 3, father: "Msindo", mother: "Sofi (Ma Mpofu)", house: "house1" },
+            "vilet": { id: "vilet", name: "Vilet (na Mandla)", gen: 3, father: "Msindo", mother: "Sofi (Ma Mpofu)", house: "house1" },
+            "nico": { id: "nico", name: "Nico (Sama Bhebhe)", gen: 3, father: "Msindo", mother: "Sofi (Ma Mpofu)", house: "house1" },
+            "jabu": { id: "jabu", name: "Jabu (Seka Siboni)", gen: 3, father: "Msindo", mother: "Sofi (Ma Mpofu)", house: "house1" },
+            "thoko": { id: "thoko", name: "Thoko", gen: 3, father: "Msindo", mother: "Sofi (Ma Mpofu)", house: "house1" },
+            "makheyi": { id: "makheyi", name: "Makheyi", gen: 3, father: "Msindo", mother: "Dandani (magumbi)", house: "house1" },
+            "sis_g": { id: "sis_g", name: "Sis G (Na Thobe)", gen: 3, father: "Msindo", mother: "Dandani (magumbi)", house: "house1" },
+
+            "henry": { id: "henry", name: "Henry", gen: 3, father: "Hlanya", mother: "Lezzie (Ma Nkala)", house: "house1" },
+            "harvey": { id: "harvey", name: "Harvey", gen: 3, father: "Hlanya", mother: "Lezzie (Ma Nkala)", house: "house1" },
+            "playford": { id: "playford", name: "Playford (Mzethi)", gen: 3, father: "Hlanya", mother: "Lezzie (Ma Nkala)", house: "house1" },
+            "dayina": { id: "dayina", name: "Dayina", gen: 3, father: "Hlanya", mother: "Lezzie (Ma Nkala)", house: "house1" },
+            "obed": { id: "obed", name: "Obed", gen: 3, father: "Hlanya", mother: "Lezzie (Ma Nkala)", house: "house1" },
+            "sithembile": { id: "sithembile", name: "Sithembile", gen: 3, father: "Hlanya", mother: "Lezzie (Ma Nkala)", house: "house1" },
+            "danisa": { id: "danisa", name: "Danisa", gen: 3, father: "Hlanya", mother: "Lezzie (Ma Nkala)", house: "house1" },
+            "levious": { id: "levious", name: "Levious", gen: 3, father: "Hlanya", mother: "Lezzie (Ma Nkala)", house: "house1" },
+            "salvinah": { id: "salvinah", name: "Salvinah", gen: 3, father: "Hlanya", mother: "Lezzie (Ma Nkala)", house: "house1" },
+
+            "mgoli": { id: "mgoli", name: "Mgoli", gen: 3, father: "Baleni", mother: "Ma Ngwenya", house: "house2" },
+            "bhoyi": { id: "bhoyi", name: "Bhoyi", gen: 3, father: "Baleni", mother: "Ma Ngwenya", house: "house2" },
+            "nesi": { id: "nesi", name: "Nesi", gen: 3, father: "Baleni", mother: "Magagula", house: "house2" },
+            "sibusisiwe": { id: "sibusisiwe", name: "Sibusisiwe", gen: 3, father: "Baleni", mother: "Magagula", house: "house2" },
+            "sethi": { id: "sethi", name: "Sethi (Nana)", gen: 3, father: "Baleni", mother: "Magagula", house: "house2" },
+            "themba": { id: "themba", name: "Themba", gen: 3, father: "Baleni", mother: "Ma Moyo", house: "house2" },
+            "sdudla": { id: "sdudla", name: "Sdudla", gen: 3, father: "Baleni", mother: "Ma Moyo", house: "house2" },
+            "filisiya": { id: "filisiya", name: "Filisiya", gen: 3, father: "Baleni", mother: "Ma Moyo", house: "house2" },
+            "alpheos": { id: "alpheos", name: "Alpheos", gen: 3, father: "Baleni", mother: "Ma Ndlovu", house: "house2" },
+            "sarah": { id: "sarah", name: "Sarah", gen: 3, father: "Baleni", mother: "Ma Ndlovu", house: "house2" },
+
+            "sikhangezile": { id: "sikhangezile", name: "Sikhangezile", gen: 3, father: "Phawuli", mother: "MaDongola", house: "house2" },
+            "sikhangele": { id: "sikhangele", name: "Sikhangele", gen: 3, father: "Phawuli", mother: "MaDongola", house: "house2" },
+            "simangele": { id: "simangele", name: "Simangele", gen: 3, father: "Phawuli", mother: "MaDongola", house: "house2" },
+            "nkosana": { id: "nkosana", name: "Nkosana", gen: 3, father: "Phawuli", mother: "MaDongola", house: "house2" },
+            "nobuhle": { id: "nobuhle", name: "Nobuhle", gen: 3, father: "Phawuli", mother: "MaDongola", house: "house2" },
+            "makhosazana": { id: "makhosazana", name: "Makhosazana", gen: 3, father: "Phawuli", mother: "MaDongola", house: "house2" },
+            "musawenkosi": { id: "musawenkosi", name: "Musawenkosi", gen: 3, father: "Phawuli", mother: "MaDongola", house: "house2" },
+            "khumbulani": { id: "khumbulani", name: "Khumbulani (Mqha)", gen: 3, father: "Phawuli", mother: "MaSitsha", house: "house2" },
+            "mpiyabo": { id: "mpiyabo", name: "Mpiyabo", gen: 3, father: "Phawuli", mother: "MaSitsha", house: "house2" },
+            "bhekusizi": { id: "bhekusizi", name: "Bhekusizi", gen: 3, father: "Phawuli", mother: "MaSitsha", house: "house2" },
+            "sifanjani": { id: "sifanjani", name: "Sifanjani", gen: 3, father: "Phawuli", mother: "MaSitsha", house: "house2" },
+            "thembelani": { id: "thembelani", name: "Thembelani", gen: 3, father: "Phawuli", mother: "MaSitsha", house: "house2" },
+            "likhwanyana": { id: "likhwanyana", name: "Likhwanyana", gen: 3, father: "Phawuli", mother: "MaSitsha", house: "house2" },
+            "kwazinkosi": { id: "kwazinkosi", name: "Kwazinkosi", gen: 3, father: "Phawuli", mother: "MaSitsha", house: "house2" },
+            "grenja": { id: "grenja", name: "Grenja", gen: 3, father: "Phawuli", mother: "Other Women", house: "house2" },
+            "thameni": { id: "thameni", name: "Thameni", gen: 3, father: "Phawuli", mother: "Other Women", house: "house2" },
+            "vusa": { id: "vusa", name: "Vusa", gen: 3, father: "Phawuli", mother: "Other Women", house: "house2" },
+            "mlamuli": { id: "mlamuli", name: "Mlamuli", gen: 3, father: "Phawuli", mother: "Other Women", house: "house2" },
+
+            "zale": { id: "zale", name: "Zale", gen: 3, father: "Ganda", mother: "Ma Dube", house: "house3" },
+            "rebecca": { id: "rebecca", name: "Rebecca", gen: 3, father: "Ganda", mother: "Ma Dube", house: "house3" },
+            "thiwe": { id: "thiwe", name: "Thiwe", gen: 3, father: "Ganda", mother: "Ma Dube", status: "late", house: "house3" },
+            "sibongile": { id: "sibongile", name: "Sibongile", gen: 3, father: "Ganda", mother: "Ma Dube", status: "late", house: "house3" },
+            "melodisi": { id: "melodisi", name: "Melodisi", gen: 3, father: "Ganda", mother: "Ma Dube", house: "house3" },
+            "zenzo": { id: "zenzo", name: "Zenzo", gen: 3, father: "Ganda", mother: "Magagula", status: "late", house: "house3" },
+            "aupa": { id: "aupa", name: "Aupa", gen: 3, father: "Ganda", mother: "Magagula", house: "house3" },
+            "dumisani": { id: "dumisani", name: "Dumisani", gen: 3, father: "Ganda", mother: "Magagula", status: "late", house: "house3" },
+            "sibangani": { id: "sibangani", name: "Sibangani", gen: 3, father: "Ganda", mother: "Magagula", house: "house3" },
+            "thefiya": { id: "thefiya", name: "Thefiya", gen: 3, father: "Ganda", mother: "Magagula", house: "house3" },
+            "ngqala": { id: "ngqala", name: "Ngqala", gen: 3, father: "Ganda", mother: "Magagula", house: "house3" },
+
+            "gladmore": { id: "gladmore", name: "Gladmore", gen: 3, father: "Nani", mother: "Ma Mpofu", house: "house3" },
+            "gladys": { id: "gladys", name: "Gladys", gen: 3, father: "Nani", mother: "Ma Mpofu", status: "late", house: "house3" },
+            "gladwin": { id: "gladwin", name: "Gladwin", gen: 3, father: "Nani", mother: "Ma Mpofu", status: "late", house: "house3" },
+            "garnet": { id: "garnet", name: "Garnet", gen: 3, father: "Nani", mother: "Ma Mpofu", status: "late", house: "house3" },
+            "gardener": { id: "gardener", name: "Gardener", gen: 3, father: "Nani", mother: "Ma Mpofu", house: "house3" },
+
+            "rose": { id: "rose", name: "Rose", gen: 3, father: "Philemon", mother: "Ma Nyembezi", house: "house4" },
+            "hopewell": { id: "hopewell", name: "Hopewell", gen: 3, father: "Philemon", mother: "MaSibanda", house: "house4" },
+            "irine": { id: "irine", name: "Irine", gen: 3, father: "Philemon", mother: "MaSibanda", house: "house4" },
+            "charm": { id: "charm", name: "Charm", gen: 3, father: "Philemon", mother: "MaSibanda", status: "late", house: "house4" },
+            "thembinkosi": { id: "thembinkosi", name: "Thembinkosi", gen: 3, father: "Philemon", mother: "MaSibanda", house: "house4" },
+            "doughton": { id: "doughton", name: "Doughton", gen: 3, father: "Philemon", mother: "MaSibanda", house: "house4" },
+            "danford": { id: "danford", name: "Danford", gen: 3, father: "Philemon", mother: "MaSibanda", house: "house4" },
+            "brighton": { id: "brighton", name: "Brighton", gen: 3, father: "Philemon", mother: "MaDube", house: "house4" },
+            "simangaliphi": { id: "simangaliphi", name: "Simangaliphi", gen: 3, father: "Philemon", mother: "MaDube", status: "late", house: "house4" },
+            "silindelumusa": { id: "silindelumusa", name: "Silindelumusa", gen: 3, father: "Philemon", mother: "MaDube", status: "late", house: "house4" },
+            "sikhathele": { id: "sikhathele", name: "Sikhathele", gen: 3, father: "Philemon", mother: "MaDube", house: "house4" },
+            "ntombizodwa": { id: "ntombizodwa", name: "Ntombizodwa", gen: 3, father: "Philemon", mother: "MaDube", house: "house4" },
+            "xolani": { id: "xolani", name: "Xolani", gen: 3, father: "Philemon", mother: "MaDube", house: "house4" },
+            "cleopas": { id: "cleopas", name: "Cleopas", gen: 3, father: "Philemon", mother: "MaDube", house: "house4" },
+            "last": { id: "last", name: "Last", gen: 3, father: "Philemon", mother: "MaDube", house: "house4" },
+            "painford": { id: "painford", name: "Painford", gen: 3, father: "Philemon", mother: "MaDube", house: "house4" },
+            "onias": { id: "onias", name: "Onias", gen: 3, father: "Philemon", mother: "MaNyathi", house: "house4" },
+            "bowen": { id: "bowen", name: "Bowen", gen: 3, father: "Philemon", mother: "MaNyathi", house: "house4" },
+            "tholakele": { id: "tholakele", name: "Tholakele", gen: 3, father: "Philemon", mother: "MaNyathi", house: "house4" },
+            "siduduzile": { id: "siduduzile", name: "Siduduzile", gen: 3, father: "Philemon", mother: "MaNyathi", house: "house4" },
+            "sithulisiwe": { id: "sithulisiwe", name: "Sithulisiwe", gen: 3, father: "Philemon", mother: "MaNyathi", house: "house4" },
+            "obvious": { id: "obvious", name: "Obvious", gen: 3, father: "Philemon", mother: "MaNyathi", house: "house4" },
+            "mkhululi": { id: "mkhululi", name: "Mkhululi", gen: 3, father: "Philemon", mother: "Ma Moyo (Ka Baleni)", house: "house4" }
+        };
+
+        let currentSelectedMember = 'mtalisi';
+
+        window.onload = function() {
+            buildInteractiveTree();
+            selectMember('mtalisi');
+        };
+
+        function buildInteractiveTree() {
+            const mData = familyData['mtalisi'];
+            
+            mData.wives.forEach((wife, idx) => {
+                const houseId = `house${idx + 1}`;
+                const grid = document.getElementById(`${houseId}-children-grid`);
+                grid.innerHTML = '';
+
+                wife.children.forEach(childId => {
+                    const child = familyData[childId];
+                    if (!child) return;
+
+                    const hasDescendants = child.wives && child.wives.length > 0;
+                    const isLate = child.status === 'late';
+                    
+                    let cardHtml = `
+                        <div id="card-${child.id}" class="human-card bg-paper rounded-xl p-4 border border-stone-200 relative flex flex-col gap-2 cursor-pointer transition-colors hover:border-stone-400">
+                            <div onclick="selectMember('${child.id}')" class="flex-grow">
+                                <div class="flex justify-between items-start mb-1">
+                                    <h5 class="font-serif font-semibold text-base ${isLate ? 'text-stone-400 line-through' : 'text-ink-dark'}">${child.name}</h5>
+                                    <span class="text-[9px] text-stone-400 font-medium uppercase tracking-wider">Gen II</span>
+                                </div>
+                                <p class="text-xs text-stone-500 font-serif italic">Mother: ${child.mother.split('(')[0].trim()}</p>
+                            </div>
+                    `;
+
+                    if (hasDescendants) {
+                        let totalGrandchildren = 0;
+                        child.wives.forEach(w => totalGrandchildren += w.children.length);
+
+                        cardHtml += `
+                            <div class="border-t border-stone-200/60 pt-3 mt-1 flex justify-between items-center">
+                                <span class="text-[10px] text-stone-500 font-medium">${child.wives.length} Spouses &middot; ${totalGrandchildren} Children</span>
+                                <button onclick="toggleChildrenBranch('${child.id}', event)" id="btn-toggle-${child.id}" class="text-[10px] text-stone-500 hover:text-ink-dark uppercase tracking-wider font-semibold transition-colors flex items-center gap-1">
+                                    <span>Expand</span> <span class="text-xs">▾</span>
+                                </button>
+                            </div>
+                            <div id="branch-${child.id}" class="hidden mt-4 pl-4 border-l border-stone-200 flex flex-col gap-4 relative">
+                        `;
+
+                        child.wives.forEach((wifeBlock) => {
+                            let totalWifeChildren = wifeBlock.children.length;
+                            
+                            cardHtml += `
+                                <div class="text-sm">
+                                    <span class="font-serif italic text-stone-500 block text-xs mb-2 border-b border-stone-100 pb-1">With ${wifeBlock.name}</span>
+                                    <div class="flex flex-col gap-1.5">
+                            `;
+
+                            if (totalWifeChildren === 0) {
+                                cardHtml += `<span class="text-stone-400 italic text-[10px] pl-2">No children recorded</span>`;
+                            } else {
+                                wifeBlock.children.forEach(gChildId => {
+                                    const gChild = familyData[gChildId];
+                                    if (gChild) {
+                                        const gIsLate = gChild.status === 'late';
+                                        cardHtml += `
+                                            <div onclick="selectMember('${gChild.id}'); event.stopPropagation();" class="px-3 py-2 rounded-lg bg-white border border-stone-100 hover:border-stone-300 flex justify-between items-center gap-2 cursor-pointer transition-colors shadow-sm">
+                                                <span class="font-serif text-sm ${gIsLate ? 'text-stone-400 line-through' : 'text-ink'}">${gChild.name}</span>
+                                            </div>
+                                        `;
+                                    }
+                                });
+                            }
+
+                            cardHtml += `
+                                    </div>
+                                </div>
+                            `;
+                        });
+
+                        cardHtml += `</div>`;
+                    } else {
+                        cardHtml += `
+                            <div class="border-t border-stone-200/60 pt-2 mt-1">
+                                <span class="text-[10px] text-stone-400 italic">No further lineage recorded</span>
+                            </div>
+                        `;
+                    }
+
+                    cardHtml += `</div>`;
+                    grid.innerHTML += cardHtml;
+                });
+            });
+        }
+
+        function toggleChildrenBranch(memberId, event) {
+            if (event) event.stopPropagation();
+            const branch = document.getElementById(`branch-${memberId}`);
+            const btn = document.getElementById(`btn-toggle-${memberId}`);
+            if (branch.classList.contains('hidden')) {
+                branch.classList.remove('hidden');
+                btn.innerHTML = '<span>Fold</span> <span class="text-xs">▴</span>';
+            } else {
+                branch.classList.add('hidden');
+                btn.innerHTML = '<span>Expand</span> <span class="text-xs">▾</span>';
+            }
+        }
+
+        function toggleAllTrees(shouldExpand) {
+            document.querySelectorAll("[id^='branch-']").forEach(branch => {
+                const memberId = branch.id.replace('branch-', '');
+                const btn = document.getElementById(`btn-toggle-${memberId}`);
+                if (!btn) return;
+
+                if (shouldExpand) {
+                    branch.classList.remove('hidden');
+                    btn.innerHTML = '<span>Fold</span> <span class="text-xs">▴</span>';
+                } else {
+                    branch.classList.add('hidden');
+                    btn.innerHTML = '<span>Expand</span> <span class="text-xs">▾</span>';
+                }
+            });
+        }
+
+        function filterByHouse(houseId) {
+            document.querySelectorAll('.house-filter').forEach(el => {
+                el.classList.remove('bg-ink-dark', 'text-white');
+                el.classList.add('bg-transparent', 'text-ink-light');
+            });
+            const active = document.getElementById(`filter-${houseId}`);
+            active.classList.remove('bg-transparent', 'text-ink-light');
+            active.classList.add('bg-ink-dark', 'text-white');
+
+            if (houseId === 'all') {
+                document.querySelectorAll('.house-section').forEach(el => el.classList.remove('hidden'));
+            } else {
+                document.querySelectorAll('.house-section').forEach(el => el.classList.add('hidden'));
+                document.getElementById(`tree-${houseId}`).classList.remove('hidden');
+            }
+        }
+
+        function selectMember(memberId) {
+            currentSelectedMember = memberId;
+            const member = familyData[memberId];
+            if (!member) return;
+
+            // Highlight Active Card
+            document.querySelectorAll("[id^='card-']").forEach(c => c.classList.remove('ring-2', 'ring-ink-light', 'shadow-md'));
+            const activeCard = document.getElementById(`card-${memberId}`);
+            if (activeCard) activeCard.classList.add('ring-2', 'ring-ink-light', 'shadow-md');
+
+            // Populate Dossier
+            document.getElementById('dossier-name').innerText = member.name;
+            const romanGen = member.gen === 1 ? 'I' : member.gen === 2 ? 'II' : 'III';
+            document.getElementById('dossier-generation').innerText = `Generation ${romanGen}`;
+            
+            const statusBadge = document.getElementById('dossier-status-badge');
+            if (member.status === 'late') {
+                statusBadge.classList.remove('hidden');
+                document.getElementById('dossier-name').classList.add('text-stone-500');
+            } else {
+                statusBadge.classList.add('hidden');
+                document.getElementById('dossier-name').classList.remove('text-stone-500');
+            }
+
+            document.getElementById('dossier-father').innerText = member.father || '-';
+            document.getElementById('dossier-mother').innerText = member.mother || '-';
+
+            // Spouses
+            const wivesSec = document.getElementById('dossier-wives-section');
+            const wivesList = document.getElementById('dossier-wives-list');
+            wivesList.innerHTML = '';
+            if (member.wives && member.wives.length > 0) {
+                wivesSec.classList.remove('hidden');
+                member.wives.forEach((wife) => {
+                    wivesList.innerHTML += `
+                        <div class="px-3 py-2 rounded-lg bg-paper border border-stone-100 font-serif text-sm text-ink-dark">
+                            ${wife.name}
+                        </div>
+                    `;
+                });
+            } else {
+                wivesSec.classList.add('hidden');
+            }
+
+            // Siblings
+            const siblingsSec = document.getElementById('dossier-siblings-section');
+            const siblingsList = document.getElementById('dossier-siblings-list');
+            siblingsList.innerHTML = '';
+            if (member.id !== 'mtalisi') {
+                siblingsSec.classList.remove('hidden');
+                const siblings = Object.values(familyData).filter(m => m.father === member.father && m.id !== member.id);
+                if (siblings.length > 0) {
+                    siblings.forEach(sib => {
+                        const isHalf = sib.mother !== member.mother;
+                        siblingsList.innerHTML += `
+                            <button onclick="selectMember('${sib.id}')" class="px-3 py-1.5 rounded-lg bg-white border border-stone-200 hover:border-stone-400 text-xs font-serif text-ink-dark transition-colors">
+                                ${sib.name} ${isHalf ? '<span class="text-stone-400 italic">(Half)</span>' : ''}
+                            </button>
+                        `;
+                    });
+                } else {
+                    siblingsList.innerHTML = `<span class="text-stone-400 text-xs italic font-serif">No siblings on record</span>`;
+                }
+            } else {
+                siblingsSec.classList.add('hidden');
+            }
+
+            // Descendants
+            const descSec = document.getElementById('dossier-descendants-section');
+            const descList = document.getElementById('dossier-descendants-list');
+            const descCount = document.getElementById('dossier-descendants-count');
+            descList.innerHTML = '';
+
+            let offspring = [];
+            if (member.id === 'mtalisi') {
+                offspring = Object.values(familyData).filter(m => m.gen === 2);
+            } else if (member.wives) {
+                member.wives.forEach(w => {
+                    w.children.forEach(cId => {
+                        const child = familyData[cId];
+                        if (child) offspring.push(child);
+                    });
+                });
+            }
+
+            if (offspring.length > 0) {
+                descSec.classList.remove('hidden');
+                descCount.innerText = `${offspring.length} total`;
+                offspring.forEach(child => {
+                    const isLate = child.status === 'late';
+                    descList.innerHTML += `
+                        <button onclick="selectMember('${child.id}')" class="px-3 py-1.5 rounded-lg bg-ink-dark text-white hover:bg-ink text-xs font-serif transition-colors">
+                            <span class="${isLate ? 'line-through text-stone-300' : ''}">${child.name}</span>
+                        </button>
+                    `;
+                });
+            } else {
+                descSec.classList.add('hidden');
+            }
+
+            // Load Notes
+            const savedNote = localStorage.getItem(`note_${memberId}`);
+            document.getElementById('dossier-note-area').value = savedNote || '';
+        }
+
+        function saveLocalNote() {
+            const noteText = document.getElementById('dossier-note-area').value;
+            localStorage.setItem(`note_${currentSelectedMember}`, noteText);
+        }
+
+        function clearLocalNote() {
+            document.getElementById('dossier-note-area').value = '';
+            localStorage.removeItem(`note_${currentSelectedMember}`);
+        }
+    </script>
+</body>
+</html>
