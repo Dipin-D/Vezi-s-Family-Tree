@@ -28,11 +28,14 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cca982; border-radius: 4px; }
         
+        /* Smooth transitions for the Focus Explorer */
         .explorer-canvas { transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out; }
         .fade-out { opacity: 0; transform: scale(0.98); }
         .fade-in { opacity: 1; transform: scale(1); }
 
+        /* Custom Connecting Lines */
         .conn-line-down::after { content: ''; position: absolute; bottom: -24px; left: 50%; width: 2px; height: 24px; background-color: #dfcbae; transform: translateX(-50%); }
+        .conn-line-up::before { content: ''; position: absolute; top: -24px; left: 50%; width: 2px; height: 24px; background-color: #dfcbae; transform: translateX(-50%); }
         .conn-bracket { position: relative; }
         .conn-bracket::before { content: ''; position: absolute; top: -24px; left: 10%; right: 10%; height: 2px; background-color: #dfcbae; }
     </style>
@@ -55,7 +58,7 @@
         </div>
     </header>
 
-    <!-- Modern Floating Navigation -->
+    <!-- Modern Floating Navigation (Streamlined) -->
     <div class="sticky top-0 z-40 px-4 py-4 flex justify-center pointer-events-none">
         <div class="bg-white/80 backdrop-blur-xl border border-archive-200 shadow-lg rounded-full p-1.5 flex gap-1 pointer-events-auto overflow-x-auto max-w-full">
             <button onclick="switchTab('explorer')" id="tab-explorer" class="nav-btn bg-archive-900 text-white px-5 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 whitespace-nowrap shadow-md">
@@ -209,73 +212,73 @@
                     `;
                 }
 
-                // B. FOCUS TIER (SELF + NOTES)
+                // B. FOCUS TIER (SELF + SPOUSES + NOTES)
                 html += `<div class="flex flex-col items-center relative z-20 mt-4 w-full">`;
                 html += `<div class="flex flex-col md:flex-row items-center justify-center gap-6 ${member.father ? 'conn-line-up' : ''} ${member.wives ? 'conn-line-down' : ''} w-full max-w-4xl">`;
                 
+                // Self Hero Card + Editable Notes integrated directly into the focus area
                 const genRoman = member.gen === 1 ? 'I' : member.gen === 2 ? 'II' : 'III';
+                
+                // Fetch saved note
                 const savedNote = localStorage.getItem(`note_${memberId}`) || '';
 
                 html += `
                     <div class="bg-gradient-to-br from-archive-900 to-archive-950 text-white rounded-[2rem] shadow-2xl shadow-archive-900/30 border border-archive-800 w-full max-w-lg overflow-hidden transform scale-105 z-30">
+                        
                         <div class="p-8 text-center border-b border-archive-800/50">
                             <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-archive-300 mb-2 block">Generation ${genRoman}</span>
                             <h2 class="font-serif text-3xl md:text-4xl font-bold mb-1">${member.name}</h2>
                             ${member.id === 'mtalisi' ? `<p class="text-archive-400 text-xs italic font-serif mt-2">The Patriarch</p>` : ''}
                         </div>
                         
+                        <!-- End-User Edit Area directly on the main card -->
                         <div class="bg-archive-100 border-t border-archive-200 p-6">
                             <div class="flex justify-between items-center mb-2">
                                 <label class="text-xs font-bold uppercase tracking-wider text-archive-600">Resting Place & Private Notes</label>
-                                <span class="text-[10px] text-archive-400 italic">Saved to browser</span>
+                                <span class="text-[10px] text-archive-400 italic">Saved automatically to your device</span>
                             </div>
                             <textarea id="modal-note-area" oninput="saveActiveNote()" placeholder="Enter deceased location, dates, or private annotations here..." class="w-full h-24 bg-white border border-archive-300 rounded-xl p-3 text-sm text-archive-900 focus:ring-2 focus:ring-archive-400 focus:outline-none resize-none shadow-inner">${savedNote}</textarea>
                             <div class="flex justify-end">
                                 <button onclick="clearActiveNote()" class="mt-2 text-[10px] text-archive-400 hover:text-red-600 font-medium transition-colors">Clear Note</button>
                             </div>
                         </div>
+
                     </div>
                 `;
+
+                // Spouses (if any) attached to the side
+                if (member.wives && member.wives.length > 0) {
+                    html += `<div class="hidden md:flex flex-col gap-3">`;
+                    member.wives.forEach((w, i) => {
+                        html += `
+                            <div class="bg-white border-2 border-archive-100 rounded-2xl px-5 py-3 shadow-sm flex items-center gap-3">
+                                <span class="w-6 h-6 rounded-full bg-archive-100 text-archive-500 flex items-center justify-center text-xs">💍</span>
+                                <span class="font-serif font-medium text-archive-900">${w.name}</span>
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                }
                 html += `</div></div>`;
 
-                // C. CHILDREN TIER (Categorized by House)
-                if (member.wives && member.wives.length > 0) {
-                    html += `<div class="flex flex-col items-center w-full mt-12 relative z-10">`;
-                    html += `<h3 class="text-[10px] font-bold uppercase tracking-[0.2em] text-archive-400 mb-6 border-b border-archive-200 pb-2">Lineage by Mother / House</h3>`;
-                    html += `<div class="flex flex-col gap-6 w-full max-w-4xl">`;
+                // C. CHILDREN TIER
+                let childrenFound = false;
+                if (member.wives) {
+                    html += `<div class="flex flex-col items-center w-full mt-8 relative z-10">`;
+                    html += `<h3 class="text-[10px] font-bold uppercase tracking-[0.2em] text-archive-400 mb-8 border-b border-archive-200 pb-2">Descendants</h3>`;
+                    html += `<div class="flex flex-wrap justify-center gap-4 md:gap-8 max-w-5xl w-full conn-bracket">`;
                     
-                    member.wives.forEach((w, wIdx) => {
-                        const wifeId = `wife-${member.id}-${wIdx}`;
-                        html += `
-                            <div class="bg-white/60 backdrop-blur-sm border border-archive-200 rounded-3xl p-6 md:p-8 shadow-sm">
-                                <!-- Clickable Mother Header -->
-                                <div onclick="toggleHouse('${wifeId}')" class="bg-white border-2 border-archive-100 hover:border-archive-300 rounded-2xl px-6 py-4 shadow-sm flex items-center justify-between cursor-pointer transition-all mb-8 w-full md:w-max mx-auto group">
-                                    <div class="flex items-center gap-4">
-                                        <span class="w-10 h-10 rounded-full bg-archive-100 text-archive-600 flex items-center justify-center text-lg shadow-inner group-hover:scale-110 transition-transform">💍</span>
-                                        <div class="text-left">
-                                            <span class="text-[10px] uppercase tracking-widest text-archive-400 font-bold block mb-0.5">Mother / Spouse</span>
-                                            <span class="font-serif font-bold text-archive-900 text-xl">${w.name}</span>
-                                        </div>
-                                    </div>
-                                    <span id="icon-${wifeId}" class="ml-8 text-archive-400 font-bold text-lg transition-transform transform rotate-180">▾</span>
-                                </div>
-
-                                <!-- Children Grid -->
-                                <div id="${wifeId}" class="flex flex-wrap justify-center gap-4 md:gap-6 transition-all">
-                        `;
-                        if(w.children.length === 0) {
-                             html += `<span class="text-sm text-archive-400 italic">No descendants recorded in this house.</span>`;
-                        } else {
-                            w.children.forEach(cId => {
-                                html += createNodeCard(cId, 'Child');
-                            });
-                        }
-                        html += `</div></div>`;
+                    member.wives.forEach(w => {
+                        w.children.forEach(cId => {
+                            childrenFound = true;
+                            html += createNodeCard(cId, 'Child');
+                        });
                     });
                     html += `</div></div>`;
                 }
 
-                if (!member.wives && member.gen === 3) {
+                // If no children but they are Gen 3
+                if (!childrenFound && member.gen === 3) {
                     html += `
                         <div class="mt-8 text-center text-archive-400 italic text-sm">
                             End of documented lineage for this branch.
@@ -285,11 +288,12 @@
 
                 canvas.innerHTML = html;
                 
+                // Fade back in
                 requestAnimationFrame(() => {
                     canvas.classList.remove('fade-out');
                     canvas.classList.add('fade-in');
                 });
-            }, 300);
+            }, 300); // match transition duration
         }
 
         function createNodeCard(id, label) {
@@ -301,18 +305,6 @@
                     <span class="text-[9px] uppercase tracking-widest text-archive-400 mt-2 font-semibold">Gen ${m.gen}</span>
                 </div>
             `;
-        }
-
-        function toggleHouse(id) {
-            const el = document.getElementById(id);
-            const icon = document.getElementById(`icon-${id}`);
-            if (el.classList.contains('hidden')) {
-                el.classList.remove('hidden');
-                icon.classList.add('rotate-180');
-            } else {
-                el.classList.add('hidden');
-                icon.classList.remove('rotate-180');
-            }
         }
 
         /* 2. COMPLETE REGISTRY */

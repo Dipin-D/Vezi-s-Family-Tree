@@ -28,11 +28,14 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cca982; border-radius: 4px; }
         
+        /* Smooth transitions for the Focus Explorer */
         .explorer-canvas { transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out; }
         .fade-out { opacity: 0; transform: scale(0.98); }
         .fade-in { opacity: 1; transform: scale(1); }
 
+        /* Custom Connecting Lines */
         .conn-line-down::after { content: ''; position: absolute; bottom: -24px; left: 50%; width: 2px; height: 24px; background-color: #dfcbae; transform: translateX(-50%); }
+        .conn-line-up::before { content: ''; position: absolute; top: -24px; left: 50%; width: 2px; height: 24px; background-color: #dfcbae; transform: translateX(-50%); }
         .conn-bracket { position: relative; }
         .conn-bracket::before { content: ''; position: absolute; top: -24px; left: 10%; right: 10%; height: 2px; background-color: #dfcbae; }
     </style>
@@ -63,6 +66,12 @@
             </button>
             <button onclick="switchTab('directory')" id="tab-directory" class="nav-btn text-archive-700 hover:bg-archive-100 px-5 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 whitespace-nowrap">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg> Complete Registry
+            </button>
+            <button onclick="switchTab('kinship')" id="tab-kinship" class="nav-btn text-archive-700 hover:bg-archive-100 px-5 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 whitespace-nowrap">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg> Kinship Calculator
+            </button>
+            <button onclick="switchTab('analytics')" id="tab-analytics" class="nav-btn text-archive-700 hover:bg-archive-100 px-5 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 whitespace-nowrap">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg> Heritage Analytics
             </button>
         </div>
     </div>
@@ -116,10 +125,82 @@
             </div>
         </div>
 
+        <!-- TAB 3: KINSHIP CALCULATOR -->
+        <div id="view-kinship" class="tab-view hidden">
+            <div class="bg-white rounded-3xl shadow-xl shadow-archive-200/50 border border-archive-200 p-6 md:p-12 max-w-4xl mx-auto">
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl font-serif font-bold text-archive-900">Kinship Calculator</h2>
+                    <p class="text-archive-500 mt-2">Discover the exact genealogical relationship between any two relatives.</p>
+                </div>
+
+                <div class="flex flex-col md:flex-row items-center justify-center gap-6 bg-archive-50 p-6 md:p-8 rounded-2xl border border-archive-100">
+                    <div class="w-full">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-archive-500 mb-2">Relative A</label>
+                        <select id="kin-a" class="w-full bg-white border-2 border-archive-200 rounded-xl p-3 text-sm font-semibold focus:border-archive-500 focus:outline-none shadow-sm"></select>
+                    </div>
+                    <div class="w-12 h-12 shrink-0 bg-archive-200 text-archive-700 rounded-full flex items-center justify-center font-bold text-xl shadow-inner mt-4 md:mt-0">⇄</div>
+                    <div class="w-full">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-archive-500 mb-2">Relative B</label>
+                        <select id="kin-b" class="w-full bg-white border-2 border-archive-200 rounded-xl p-3 text-sm font-semibold focus:border-archive-500 focus:outline-none shadow-sm"></select>
+                    </div>
+                </div>
+
+                <div class="mt-8 text-center">
+                    <button onclick="calculateKinship()" class="bg-archive-900 hover:bg-archive-800 text-white font-serif font-bold text-lg py-3 px-10 rounded-xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5">
+                        Calculate Relationship
+                    </button>
+                </div>
+
+                <div id="kin-result" class="mt-12 hidden">
+                    <div class="bg-white border-2 border-archive-200 rounded-2xl p-8 text-center shadow-lg relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-archive-300 via-archive-600 to-archive-300"></div>
+                        <span class="text-sm font-bold text-archive-400 uppercase tracking-widest block mb-2">Outcome</span>
+                        <h3 id="kin-title" class="text-4xl font-serif font-bold text-archive-950">First Cousins</h3>
+                        <p id="kin-desc" class="text-archive-600 mt-4 max-w-2xl mx-auto leading-relaxed">Explanation goes here.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: ANALYTICS -->
+        <div id="view-analytics" class="tab-view hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Main Stats -->
+                <div class="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-3xl shadow-lg border border-archive-100 p-8 flex flex-col items-center justify-center text-center">
+                        <span class="text-5xl mb-4 block">🌳</span>
+                        <span class="text-sm font-bold text-archive-400 uppercase tracking-widest">Total Ancestry Size</span>
+                        <span class="text-5xl font-serif font-bold text-archive-950 mt-2" id="stat-total">107</span>
+                        <span class="text-xs text-archive-500 mt-2">Documented Relatives</span>
+                    </div>
+                    <div class="bg-white rounded-3xl shadow-lg border border-archive-100 p-8 flex flex-col items-center justify-center text-center">
+                        <span class="text-5xl mb-4 block">⏳</span>
+                        <span class="text-sm font-bold text-archive-400 uppercase tracking-widest">Generational Span</span>
+                        <span class="text-5xl font-serif font-bold text-archive-950 mt-2">3</span>
+                        <span class="text-xs text-archive-500 mt-2">Tiers of Lineage</span>
+                    </div>
+                    <div class="bg-white rounded-3xl shadow-lg border border-archive-100 p-8 flex flex-col items-center justify-center text-center">
+                        <span class="text-5xl mb-4 block">👑</span>
+                        <span class="text-sm font-bold text-archive-400 uppercase tracking-widest">Most Prolific Branch</span>
+                        <span class="text-4xl font-serif font-bold text-archive-950 mt-2" id="stat-prolific">Philemon</span>
+                        <span class="text-xs text-archive-500 mt-2">Largest immediate family</span>
+                    </div>
+                </div>
+
+                <!-- House Densities -->
+                <div class="lg:col-span-3 bg-white rounded-3xl shadow-lg border border-archive-100 p-8 md:p-10">
+                    <h3 class="text-xl font-serif font-bold text-archive-900 mb-8 border-b border-archive-100 pb-4">House Density Distribution</h3>
+                    <div class="space-y-6" id="house-bars-container">
+                        <!-- Bars injected via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <script>
-        /* CORE DATA ARCHITECTURE */
+        /* CORE DATA ARCHITECTURE (CLEANED OF "LATE" LOGIC) */
         const familyData = {
             "mtalisi": { id: "mtalisi", name: "Mtalisi", gen: 1, father: null, mother: null, wives: [ { name: "Ma Moyo (Makhumalo)", children: ["msindo", "gumi", "khukhuzana", "hlanya", "bhenga"] }, { name: "MaMoyo (Mnawakhe)", children: ["baleni", "emeli", "phawuli"] }, { name: "Ma Dube (naka Ganda)", children: ["makhohliso", "ganda", "nani", "marry", "sosi", "ntombana"] }, { name: "Malele (naka Philemon)", children: ["philemon"] } ], house: "all" },
             
@@ -153,12 +234,12 @@
             "rose": { id: "rose", name: "Rose", gen: 3, father: "philemon", mother: "Ma Nyembezi", house: "house4" }, "hopewell": { id: "hopewell", name: "Hopewell", gen: 3, father: "philemon", mother: "MaSibanda", house: "house4" }, "irine": { id: "irine", name: "Irine", gen: 3, father: "philemon", mother: "MaSibanda", house: "house4" }, "charm": { id: "charm", name: "Charm", gen: 3, father: "philemon", mother: "MaSibanda", house: "house4" }, "thembinkosi": { id: "thembinkosi", name: "Thembinkosi", gen: 3, father: "philemon", mother: "MaSibanda", house: "house4" }, "doughton": { id: "doughton", name: "Doughton", gen: 3, father: "philemon", mother: "MaSibanda", house: "house4" }, "danford": { id: "danford", name: "Danford", gen: 3, father: "philemon", mother: "MaSibanda", house: "house4" }, "brighton": { id: "brighton", name: "Brighton", gen: 3, father: "philemon", mother: "MaDube", house: "house4" }, "simangaliphi": { id: "simangaliphi", name: "Simangaliphi", gen: 3, father: "philemon", mother: "MaDube", house: "house4" }, "silindelumusa": { id: "silindelumusa", name: "Silindelumusa", gen: 3, father: "philemon", mother: "MaDube", house: "house4" }, "sikhathele": { id: "sikhathele", name: "Sikhathele", gen: 3, father: "philemon", mother: "MaDube", house: "house4" }, "ntombizodwa": { id: "ntombizodwa", name: "Ntombizodwa", gen: 3, father: "philemon", mother: "MaDube", house: "house4" }, "xolani": { id: "xolani", name: "Xolani", gen: 3, father: "philemon", mother: "MaDube", house: "house4" }, "cleopas": { id: "cleopas", name: "Cleopas", gen: 3, father: "philemon", mother: "MaDube", house: "house4" }, "last": { id: "last", name: "Last", gen: 3, father: "philemon", mother: "MaDube", house: "house4" }, "painford": { id: "painford", name: "Painford", gen: 3, father: "philemon", mother: "MaDube", house: "house4" }, "onias": { id: "onias", name: "Onias", gen: 3, father: "philemon", mother: "MaNyathi", house: "house4" }, "bowen": { id: "bowen", name: "Bowen", gen: 3, father: "philemon", mother: "MaNyathi", house: "house4" }, "tholakele": { id: "tholakele", name: "Tholakele", gen: 3, father: "philemon", mother: "MaNyathi", house: "house4" }, "siduduzile": { id: "siduduzile", name: "Siduduzile", gen: 3, father: "philemon", mother: "MaNyathi", house: "house4" }, "sithulisiwe": { id: "sithulisiwe", name: "Sithulisiwe", gen: 3, father: "philemon", mother: "MaNyathi", house: "house4" }, "obvious": { id: "obvious", name: "Obvious", gen: 3, father: "philemon", mother: "MaNyathi", house: "house4" }, "mkhululi": { id: "mkhululi", name: "Mkhululi", gen: 3, father: "philemon", mother: "Ma Moyo", house: "house4" }
         };
 
-        let currentActiveDossierId = null;
-
         /* INITIALIZATION */
         window.onload = function() {
             renderFocusNode('mtalisi');
             updateDirectory();
+            populateKinship();
+            renderAnalytics();
         };
 
         /* TAB NAVIGATION SYSTEM */
@@ -174,13 +255,11 @@
             btn.classList.remove('text-archive-700', 'hover:bg-archive-100');
         }
 
-        /* 1. LINEAGE FOCUS EXPLORER */
+        /* 1. LINEAGE FOCUS EXPLORER (THE ASTONISHING UI) */
         function renderFocusNode(memberId) {
             const canvas = document.getElementById('focus-canvas');
             const member = familyData[memberId];
             if(!member) return;
-
-            currentActiveDossierId = memberId;
 
             // Trigger fade out
             canvas.classList.remove('fade-in');
@@ -209,73 +288,53 @@
                     `;
                 }
 
-                // B. FOCUS TIER (SELF + NOTES)
-                html += `<div class="flex flex-col items-center relative z-20 mt-4 w-full">`;
-                html += `<div class="flex flex-col md:flex-row items-center justify-center gap-6 ${member.father ? 'conn-line-up' : ''} ${member.wives ? 'conn-line-down' : ''} w-full max-w-4xl">`;
+                // B. FOCUS TIER (SELF + SPOUSES)
+                html += `<div class="flex flex-col items-center relative z-20 mt-4">`;
+                html += `<div class="flex flex-col md:flex-row items-center justify-center gap-6 ${member.father ? 'conn-line-up' : ''} ${member.wives ? 'conn-line-down' : ''}">`;
                 
+                // Self Hero Card
                 const genRoman = member.gen === 1 ? 'I' : member.gen === 2 ? 'II' : 'III';
-                const savedNote = localStorage.getItem(`note_${memberId}`) || '';
-
                 html += `
-                    <div class="bg-gradient-to-br from-archive-900 to-archive-950 text-white rounded-[2rem] shadow-2xl shadow-archive-900/30 border border-archive-800 w-full max-w-lg overflow-hidden transform scale-105 z-30">
-                        <div class="p-8 text-center border-b border-archive-800/50">
-                            <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-archive-300 mb-2 block">Generation ${genRoman}</span>
-                            <h2 class="font-serif text-3xl md:text-4xl font-bold mb-1">${member.name}</h2>
-                            ${member.id === 'mtalisi' ? `<p class="text-archive-400 text-xs italic font-serif mt-2">The Patriarch</p>` : ''}
-                        </div>
-                        
-                        <div class="bg-archive-100 border-t border-archive-200 p-6">
-                            <div class="flex justify-between items-center mb-2">
-                                <label class="text-xs font-bold uppercase tracking-wider text-archive-600">Resting Place & Private Notes</label>
-                                <span class="text-[10px] text-archive-400 italic">Saved to browser</span>
-                            </div>
-                            <textarea id="modal-note-area" oninput="saveActiveNote()" placeholder="Enter deceased location, dates, or private annotations here..." class="w-full h-24 bg-white border border-archive-300 rounded-xl p-3 text-sm text-archive-900 focus:ring-2 focus:ring-archive-400 focus:outline-none resize-none shadow-inner">${savedNote}</textarea>
-                            <div class="flex justify-end">
-                                <button onclick="clearActiveNote()" class="mt-2 text-[10px] text-archive-400 hover:text-red-600 font-medium transition-colors">Clear Note</button>
-                            </div>
-                        </div>
+                    <div class="bg-gradient-to-br from-archive-900 to-archive-950 text-white rounded-[2rem] p-8 md:p-10 shadow-2xl shadow-archive-900/30 border border-archive-800 w-full max-w-md text-center transform scale-105 z-30">
+                        <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-archive-300 mb-2 block">Generation ${genRoman}</span>
+                        <h2 class="font-serif text-3xl md:text-4xl font-bold mb-1">${member.name}</h2>
+                        ${member.id === 'mtalisi' ? `<p class="text-archive-400 text-xs italic font-serif mt-2">The Patriarch</p>` : ''}
                     </div>
                 `;
+
+                // Spouses (if any) attached to the side
+                if (member.wives && member.wives.length > 0) {
+                    html += `<div class="hidden md:flex flex-col gap-3">`;
+                    member.wives.forEach((w, i) => {
+                        html += `
+                            <div class="bg-white border-2 border-archive-100 rounded-2xl px-5 py-3 shadow-sm flex items-center gap-3">
+                                <span class="w-6 h-6 rounded-full bg-archive-100 text-archive-500 flex items-center justify-center text-xs">💍</span>
+                                <span class="font-serif font-medium text-archive-900">${w.name}</span>
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                }
                 html += `</div></div>`;
 
-                // C. CHILDREN TIER (Categorized by House)
-                if (member.wives && member.wives.length > 0) {
-                    html += `<div class="flex flex-col items-center w-full mt-12 relative z-10">`;
-                    html += `<h3 class="text-[10px] font-bold uppercase tracking-[0.2em] text-archive-400 mb-6 border-b border-archive-200 pb-2">Lineage by Mother / House</h3>`;
-                    html += `<div class="flex flex-col gap-6 w-full max-w-4xl">`;
+                // C. CHILDREN TIER
+                let childrenFound = false;
+                if (member.wives) {
+                    html += `<div class="flex flex-col items-center w-full mt-8 relative z-10">`;
+                    html += `<h3 class="text-[10px] font-bold uppercase tracking-[0.2em] text-archive-400 mb-8 border-b border-archive-200 pb-2">Descendants</h3>`;
+                    html += `<div class="flex flex-wrap justify-center gap-4 md:gap-8 max-w-5xl w-full conn-bracket">`;
                     
-                    member.wives.forEach((w, wIdx) => {
-                        const wifeId = `wife-${member.id}-${wIdx}`;
-                        html += `
-                            <div class="bg-white/60 backdrop-blur-sm border border-archive-200 rounded-3xl p-6 md:p-8 shadow-sm">
-                                <!-- Clickable Mother Header -->
-                                <div onclick="toggleHouse('${wifeId}')" class="bg-white border-2 border-archive-100 hover:border-archive-300 rounded-2xl px-6 py-4 shadow-sm flex items-center justify-between cursor-pointer transition-all mb-8 w-full md:w-max mx-auto group">
-                                    <div class="flex items-center gap-4">
-                                        <span class="w-10 h-10 rounded-full bg-archive-100 text-archive-600 flex items-center justify-center text-lg shadow-inner group-hover:scale-110 transition-transform">💍</span>
-                                        <div class="text-left">
-                                            <span class="text-[10px] uppercase tracking-widest text-archive-400 font-bold block mb-0.5">Mother / Spouse</span>
-                                            <span class="font-serif font-bold text-archive-900 text-xl">${w.name}</span>
-                                        </div>
-                                    </div>
-                                    <span id="icon-${wifeId}" class="ml-8 text-archive-400 font-bold text-lg transition-transform transform rotate-180">▾</span>
-                                </div>
-
-                                <!-- Children Grid -->
-                                <div id="${wifeId}" class="flex flex-wrap justify-center gap-4 md:gap-6 transition-all">
-                        `;
-                        if(w.children.length === 0) {
-                             html += `<span class="text-sm text-archive-400 italic">No descendants recorded in this house.</span>`;
-                        } else {
-                            w.children.forEach(cId => {
-                                html += createNodeCard(cId, 'Child');
-                            });
-                        }
-                        html += `</div></div>`;
+                    member.wives.forEach(w => {
+                        w.children.forEach(cId => {
+                            childrenFound = true;
+                            html += createNodeCard(cId, 'Child');
+                        });
                     });
                     html += `</div></div>`;
                 }
 
-                if (!member.wives && member.gen === 3) {
+                // If no children but they are Gen 3
+                if (!childrenFound && member.gen === 3) {
                     html += `
                         <div class="mt-8 text-center text-archive-400 italic text-sm">
                             End of documented lineage for this branch.
@@ -285,11 +344,12 @@
 
                 canvas.innerHTML = html;
                 
+                // Fade back in
                 requestAnimationFrame(() => {
                     canvas.classList.remove('fade-out');
                     canvas.classList.add('fade-in');
                 });
-            }, 300);
+            }, 300); // match transition duration
         }
 
         function createNodeCard(id, label) {
@@ -301,18 +361,6 @@
                     <span class="text-[9px] uppercase tracking-widest text-archive-400 mt-2 font-semibold">Gen ${m.gen}</span>
                 </div>
             `;
-        }
-
-        function toggleHouse(id) {
-            const el = document.getElementById(id);
-            const icon = document.getElementById(`icon-${id}`);
-            if (el.classList.contains('hidden')) {
-                el.classList.remove('hidden');
-                icon.classList.add('rotate-180');
-            } else {
-                el.classList.add('hidden');
-                icon.classList.remove('rotate-180');
-            }
         }
 
         /* 2. COMPLETE REGISTRY */
@@ -352,19 +400,103 @@
             });
         }
 
-        /* Notes Management */
-        function saveActiveNote() {
-            if (currentActiveDossierId) {
-                const noteText = document.getElementById('modal-note-area').value;
-                localStorage.setItem(`note_${currentActiveDossierId}`, noteText);
-            }
+        /* 3. KINSHIP CALCULATOR */
+        function populateKinship() {
+            const selA = document.getElementById('kin-a');
+            const selB = document.getElementById('kin-b');
+            const sorted = Object.values(familyData).sort((a,b) => a.name.localeCompare(b.name));
+            
+            let html = '';
+            sorted.forEach(m => { html += `<option value="${m.id}">${m.name} (Gen ${m.gen})</option>`; });
+            
+            selA.innerHTML = html; selB.innerHTML = html;
+            selA.value = 'msindo'; selB.value = 'baleni';
         }
 
-        function clearActiveNote() {
-            if (currentActiveDossierId) {
-                document.getElementById('modal-note-area').value = '';
-                localStorage.removeItem(`note_${currentActiveDossierId}`);
+        function calculateKinship() {
+            const idA = document.getElementById('kin-a').value;
+            const idB = document.getElementById('kin-b').value;
+            const res = document.getElementById('kin-result');
+            const title = document.getElementById('kin-title');
+            const desc = document.getElementById('kin-desc');
+
+            res.classList.remove('hidden');
+
+            if(idA === idB) {
+                title.innerText = "Same Individual"; desc.innerText = "You have selected the same person in both fields."; return;
             }
+
+            const mA = familyData[idA]; const mB = familyData[idB];
+
+            if(mA.id === 'mtalisi') {
+                title.innerText = mB.gen === 2 ? "Father & Child" : "Grandfather & Grandchild";
+                desc.innerText = `Mtalisi is the direct founding patriarch of ${mB.name}.`; return;
+            }
+            if(mB.id === 'mtalisi') {
+                title.innerText = mA.gen === 2 ? "Child & Father" : "Grandchild & Grandfather";
+                desc.innerText = `${mA.name} descends directly from the patriarch Mtalisi.`; return;
+            }
+            
+            if(mA.id === mB.father) { title.innerText = "Father & Child"; desc.innerText = `${mA.name} is the father of ${mB.name}.`; return; }
+            if(mB.id === mA.father) { title.innerText = "Child & Father"; desc.innerText = `${mA.name} is the child of ${mB.name}.`; return; }
+
+            if(mA.gen === 2 && mB.gen === 2) {
+                if(mA.mother === mB.mother) { title.innerText = "Full Siblings"; desc.innerText = `They share both Mtalisi (Father) and ${mA.mother} (Mother).`; }
+                else { title.innerText = "Half-Siblings"; desc.innerText = `They share Mtalisi as a father but come from different maternal houses.`; }
+                return;
+            }
+
+            if(mA.gen === 3 && mB.gen === 3) {
+                if(mA.father === mB.father) {
+                    if(mA.mother === mB.mother) { title.innerText = "Full Siblings"; desc.innerText = `They share the same parents.`; }
+                    else { title.innerText = "Half-Siblings"; desc.innerText = `They share the same father but have different mothers.`; }
+                } else {
+                    title.innerText = "First Cousins"; desc.innerText = `Their fathers are brothers (sons of Mtalisi).`;
+                }
+                return;
+            }
+
+            title.innerText = "Uncle/Aunt & Nephew/Niece";
+            desc.innerText = `One is from Generation II and the other is from Generation III, connected via sibling lines.`;
+        }
+
+        /* 4. ANALYTICS */
+        function renderAnalytics() {
+            const arr = Object.values(familyData);
+            document.getElementById('stat-total').innerText = arr.length;
+            
+            // Find most prolific Gen 2
+            let bestName = ""; let maxKids = 0;
+            arr.forEach(m => {
+                if(m.gen === 2 && m.wives) {
+                    let total = 0; m.wives.forEach(w => total += w.children.length);
+                    if(total > maxKids) { maxKids = total; bestName = m.name.split(' ')[0]; }
+                }
+            });
+            document.getElementById('stat-prolific').innerText = bestName;
+
+            // Density Bars
+            const houses = ['house1', 'house2', 'house3', 'house4'];
+            const hNames = ['House of Makhumalo', 'House of Mnawakhe', 'House of Ma Dube', 'House of Malele'];
+            const colors = ['bg-red-800', 'bg-indigo-800', 'bg-emerald-800', 'bg-amber-800'];
+            
+            let html = '';
+            houses.forEach((h, i) => {
+                const count = arr.filter(m => m.house === h).length;
+                const pct = (count / arr.length) * 100;
+                html += `
+                    <div>
+                        <div class="flex justify-between text-sm font-semibold text-archive-900 mb-1">
+                            <span>${hNames[i]}</span>
+                            <span>${count} relatives</span>
+                        </div>
+                        <div class="w-full bg-archive-100 rounded-full h-4 overflow-hidden">
+                            <div class="${colors[i]} h-full rounded-full transition-all duration-1000" style="width: ${pct}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('house-bars-container').innerHTML = html;
         }
     </script>
 </body>

@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inzalo KaMtalisi - Visual Family Tree</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['Lora', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        ink: { light: '#78716C', DEFAULT: '#44403C', dark: '#1C1917' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #F5F5F4;
+            background-image: radial-gradient(#d6d3d1 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* 
+         * CSS Bracket Magic for Visual Trees
+         * This creates the perfectly aligned connecting lines without SVGs
+         */
+        .genealogy-tree ul {
+            padding-top: 24px; position: relative;
+            display: flex; justify-content: center;
+            transition: all 0.3s;
+        }
+        .genealogy-tree li {
+            text-align: center; list-style-type: none;
+            position: relative; padding: 24px 12px 0 12px;
+            transition: all 0.3s;
+        }
+        /* Top brackets connecting siblings */
+        .genealogy-tree li::before, .genealogy-tree li::after {
+            content: ''; position: absolute; top: 0; right: 50%;
+            border-top: 2px solid #a8a29e; width: 50%; height: 24px;
+        }
+        .genealogy-tree li::after {
+            right: auto; left: 50%; border-left: 2px solid #a8a29e;
+        }
+        /* Remove brackets for only children or roots */
+        .genealogy-tree li:only-child::after, .genealogy-tree li:only-child::before {
+            display: none;
+        }
+        .genealogy-tree li:only-child { padding-top: 0; }
+        /* Clean up end nodes */
+        .genealogy-tree li:first-child::before, .genealogy-tree li:last-child::after {
+            border: 0 none;
+        }
+        .genealogy-tree li:last-child::before {
+            border-right: 2px solid #a8a29e; border-radius: 0 6px 0 0;
+        }
+        .genealogy-tree li:first-child::after {
+            border-radius: 6px 0 0 0;
+        }
+        /* Downward line from parents */
+        .genealogy-tree ul ul::before {
+            content: ''; position: absolute; top: 0; left: 50%;
+            border-left: 2px solid #a8a29e; width: 0; height: 24px;
+        }
+
+        /* Interactive Map Grabbing */
+        .cursor-grab { cursor: -webkit-grab; cursor: grab; }
+        .cursor-grabbing { cursor: -webkit-grabbing !important; cursor: grabbing !important; }
+
+        /* Hide Scrollbars for cleaner map view */
+        #tree-container::-webkit-scrollbar { display: none; }
+        #tree-container { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="text-ink font-sans h-screen flex flex-col antialiased overflow-hidden">
+
+    <!-- Navbar -->
+    <header class="bg-white/90 backdrop-blur-md border-b border-stone-200 px-6 py-4 flex justify-between items-center shadow-sm z-20 flex-shrink-0">
+        <div>
+            <h1 class="text-2xl font-serif font-bold text-ink-dark">Inzalo KaMtalisi</h1>
+            <p class="text-xs text-stone-500 font-medium tracking-wide uppercase mt-0.5">Interactive Heritage Map</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="text-xs text-stone-400 hidden md:block">Click & drag to explore</span>
+            <button onclick="zoomTree('in')" class="w-8 h-8 rounded bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-600 transition-colors font-bold">+</button>
+            <button onclick="zoomTree('out')" class="w-8 h-8 rounded bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-600 transition-colors font-bold">−</button>
+        </div>
+    </header>
+
+    <!-- Infinite Map Canvas -->
+    <main id="tree-container" class="flex-grow w-full h-full overflow-auto cursor-grab relative select-none p-12 flex justify-center items-start">
+        <!-- Tree renders here -->
+        <div id="tree-mount" class="genealogy-tree transition-transform duration-200" style="transform: scale(1); transform-origin: top center;"></div>
+    </main>
+
+    <!-- The Focus Popup (Modal) -->
+    <div id="modal-overlay" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 opacity-0 transition-opacity duration-300" onclick="closeModal(event)">
+        
+        <div id="modal-content" class="bg-white rounded-2xl shadow-2xl w-full max-w-lg border border-stone-200 transform scale-95 transition-transform duration-300 overflow-hidden flex flex-col max-h-[90vh]">
+            
+            <!-- Header -->
+            <div class="bg-stone-50 px-6 py-5 border-b border-stone-200 flex justify-between items-start relative">
+                <div>
+                    <span id="modal-gen" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-stone-200 text-stone-600 mb-2 inline-block">Generation I</span>
+                    <h2 id="modal-name" class="text-3xl font-serif font-bold text-ink-dark pr-8">Name</h2>
+                    <p id="modal-parents" class="text-sm text-stone-500 font-serif italic mt-1">Child of ...</p>
+                </div>
+                <button onclick="forceCloseModal()" class="w-8 h-8 rounded-full bg-stone-200 hover:bg-stone-300 text-stone-600 flex items-center justify-center transition-colors absolute top-4 right-4 focus:outline-none">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Scrollable Details -->
+            <div class="p-6 overflow-y-auto flex flex-col gap-6">
+                
+                <!-- Spouses -->
+                <div id="modal-spouses-wrapper">
+                    <h4 class="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <span>Spouses & Houses</span> <div class="flex-grow h-px bg-stone-100"></div>
+                    </h4>
+                    <ul id="modal-spouses" class="space-y-2"></ul>
+                </div>
+
+                <!-- Children -->
+                <div id="modal-children-wrapper">
+                    <h4 class="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <span>Direct Descendants</span> <div class="flex-grow h-px bg-stone-100"></div>
+                    </h4>
+                    <div id="modal-children" class="flex flex-wrap gap-2"></div>
+                </div>
+
+            </div>
+
+            <!-- Footer Notes -->
+            <div class="bg-stone-50 p-4 border-t border-stone-200 mt-auto">
+                <input type="text" id="modal-note" placeholder="Add a personal note..." class="w-full bg-white border border-stone-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-shadow">
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        // Database (Unchanged Core Architecture)
+        const familyData = {
+            "mtalisi": { id: "mtalisi", name: "Mtalisi", gen: 1, father: "None", mother: "None", wives: [ { name: "Ma Moyo (Makhumalo)", children: ["msindo", "gumi", "khukhuzana", "hlanya", "bhenga"] }, { name: "MaMoyo (Mnawakhe)", children: ["baleni", "emeli", "phawuli"] }, { name: "Ma Dube (naka Ganda)", children: ["makhohliso", "ganda", "nani", "marry", "sosi", "ntombana"] }, { name: "Malele (naka Philemon)", children: ["philemon"] } ] },
+            
+            "msindo": { id: "msindo", name: "Msindo", gen: 2, father: "Mtalisi", mother: "Ma Moyo", wives: [ { name: "Ma Sibanda", children: ["rita", "dorothy", "robert", "ebbie", "dickson", "promise"] }, { name: "Agnes Mafu", children: ["herta"] }, { name: "Sofi", children: ["nehemiah", "jeconiah", "vilet", "nico", "jabu", "thoko"] }, { name: "Dandani", children: ["makheyi", "sis_g"] } ] },
+            "gumi": { id: "gumi", name: "Gumi", gen: 2, father: "Mtalisi", mother: "Ma Moyo" },
+            "khukhuzana": { id: "khukhuzana", name: "Khukhuzana", gen: 2, father: "Mtalisi", mother: "Ma Moyo" },
+            "hlanya": { id: "hlanya", name: "Hlanya", gen: 2, father: "Mtalisi", mother: "Ma Moyo", wives: [{ name: "Lezzie", children: ["henry", "harvey", "playford", "dayina", "obed", "sithembile", "danisa", "levious", "salvinah"] }] },
+            "bhenga": { id: "bhenga", name: "Bhenga", gen: 2, father: "Mtalisi", mother: "Ma Moyo" },
+
+            "baleni": { id: "baleni", name: "Baleni", gen: 2, father: "Mtalisi", mother: "Mnawakhe", wives: [ { name: "Ma Ngwenya", children: ["mgoli", "bhoyi"] }, { name: "Magagula", children: ["nesi", "sibusisiwe", "sethi"] }, { name: "Ma Moyo", children: ["themba", "sdudla", "filisiya"] }, { name: "Ma Ndlovu", children: ["alpheos", "sarah"] } ] },
+            "emeli": { id: "emeli", name: "Emeli", gen: 2, father: "Mtalisi", mother: "Mnawakhe" },
+            "phawuli": { id: "phawuli", name: "Phawuli", gen: 2, father: "Mtalisi", mother: "Mnawakhe", wives: [ { name: "Monica", children: [] }, { name: "MaDongola", children: ["sikhangezile", "sikhangele", "simangele", "nkosana", "nobuhle", "makhosazana", "musawenkosi"] }, { name: "MaSitsha", children: ["khumbulani", "mpiyabo", "bhekusizi", "sifanjani", "thembelani", "likhwanyana", "kwazinkosi"] }, { name: "Other Women", children: ["grenja", "thameni", "vusa", "mlamuli"] } ] },
+
+            "makhohliso": { id: "makhohliso", name: "Makhohliso", gen: 2, father: "Mtalisi", mother: "Ma Dube" },
+            "ganda": { id: "ganda", name: "Ganda", gen: 2, father: "Mtalisi", mother: "Ma Dube", wives: [ { name: "Ma Dube", children: ["zale", "rebecca", "thiwe", "sibongile", "melodisi"] }, { name: "MaGagula", children: ["zenzo", "aupa", "dumisani", "sibangani", "thefiya", "ngqala"] } ] },
+            "nani": { id: "nani", name: "Nani", gen: 2, father: "Mtalisi", mother: "Ma Dube", wives: [{ name: "Ma Mpofu", children: ["gladmore", "gladys", "gladwin", "garnet", "gardener"] }] },
+            "marry": { id: "marry", name: "Marry", gen: 2, father: "Mtalisi", mother: "Ma Dube" },
+            "sosi": { id: "sosi", name: "Sosi", gen: 2, father: "Mtalisi", mother: "Ma Dube" },
+            "ntombana": { id: "ntombana", name: "Ntombana", gen: 2, father: "Mtalisi", mother: "Ma Dube" },
+
+            "philemon": { id: "philemon", name: "Philemon", gen: 2, father: "Mtalisi", mother: "Malele", wives: [ { name: "Ma Nyembezi", children: ["rose"] }, { name: "MaSibanda", children: ["hopewell", "irine", "charm", "thembinkosi", "doughton", "danford"] }, { name: "MaDube", children: ["brighton", "simangaliphi", "silindelumusa", "sikhathele", "ntombizodwa", "xolani", "cleopas", "last", "painford"] }, { name: "MaNyathi", children: ["onias", "bowen", "tholakele", "siduduzile", "sithulisiwe", "obvious"] }, { name: "Ma Moyo", children: ["mkhululi"] } ] },
+
+            "rita": { id: "rita", name: "Rita", gen: 3, father: "Msindo", mother: "Ma Sibanda" }, "dorothy": { id: "dorothy", name: "Dorothy", gen: 3, father: "Msindo", mother: "Ma Sibanda" }, "robert": { id: "robert", name: "Robert", gen: 3, father: "Msindo", mother: "Ma Sibanda" }, "ebbie": { id: "ebbie", name: "Ebbie", gen: 3, father: "Msindo", mother: "Ma Sibanda" }, "dickson": { id: "dickson", name: "Dickson", gen: 3, father: "Msindo", mother: "Ma Sibanda" }, "promise": { id: "promise", name: "Promise", gen: 3, father: "Msindo", mother: "Ma Sibanda" }, "herta": { id: "herta", name: "Herta", gen: 3, father: "Msindo", mother: "Agnes Mafu" }, "nehemiah": { id: "nehemiah", name: "Nehemiah", gen: 3, father: "Msindo", mother: "Sofi" }, "jeconiah": { id: "jeconiah", name: "Jeconiah", gen: 3, father: "Msindo", mother: "Sofi" }, "vilet": { id: "vilet", name: "Vilet", gen: 3, father: "Msindo", mother: "Sofi" }, "nico": { id: "nico", name: "Nico", gen: 3, father: "Msindo", mother: "Sofi" }, "jabu": { id: "jabu", name: "Jabu", gen: 3, father: "Msindo", mother: "Sofi" }, "thoko": { id: "thoko", name: "Thoko", gen: 3, father: "Msindo", mother: "Sofi" }, "makheyi": { id: "makheyi", name: "Makheyi", gen: 3, father: "Msindo", mother: "Dandani" }, "sis_g": { id: "sis_g", name: "Sis G", gen: 3, father: "Msindo", mother: "Dandani" },
+            "henry": { id: "henry", name: "Henry", gen: 3, father: "Hlanya", mother: "Lezzie" }, "harvey": { id: "harvey", name: "Harvey", gen: 3, father: "Hlanya", mother: "Lezzie" }, "playford": { id: "playford", name: "Playford", gen: 3, father: "Hlanya", mother: "Lezzie" }, "dayina": { id: "dayina", name: "Dayina", gen: 3, father: "Hlanya", mother: "Lezzie" }, "obed": { id: "obed", name: "Obed", gen: 3, father: "Hlanya", mother: "Lezzie" }, "sithembile": { id: "sithembile", name: "Sithembile", gen: 3, father: "Hlanya", mother: "Lezzie" }, "danisa": { id: "danisa", name: "Danisa", gen: 3, father: "Hlanya", mother: "Lezzie" }, "levious": { id: "levious", name: "Levious", gen: 3, father: "Hlanya", mother: "Lezzie" }, "salvinah": { id: "salvinah", name: "Salvinah", gen: 3, father: "Hlanya", mother: "Lezzie" },
+            "mgoli": { id: "mgoli", name: "Mgoli", gen: 3, father: "Baleni", mother: "Ma Ngwenya" }, "bhoyi": { id: "bhoyi", name: "Bhoyi", gen: 3, father: "Baleni", mother: "Ma Ngwenya" }, "nesi": { id: "nesi", name: "Nesi", gen: 3, father: "Baleni", mother: "Magagula" }, "sibusisiwe": { id: "sibusisiwe", name: "Sibusisiwe", gen: 3, father: "Baleni", mother: "Magagula" }, "sethi": { id: "sethi", name: "Sethi", gen: 3, father: "Baleni", mother: "Magagula" }, "themba": { id: "themba", name: "Themba", gen: 3, father: "Baleni", mother: "Ma Moyo" }, "sdudla": { id: "sdudla", name: "Sdudla", gen: 3, father: "Baleni", mother: "Ma Moyo" }, "filisiya": { id: "filisiya", name: "Filisiya", gen: 3, father: "Baleni", mother: "Ma Moyo" }, "alpheos": { id: "alpheos", name: "Alpheos", gen: 3, father: "Baleni", mother: "Ma Ndlovu" }, "sarah": { id: "sarah", name: "Sarah", gen: 3, father: "Baleni", mother: "Ma Ndlovu" },
+            "sikhangezile": { id: "sikhangezile", name: "Sikhangezile", gen: 3, father: "Phawuli", mother: "MaDongola" }, "sikhangele": { id: "sikhangele", name: "Sikhangele", gen: 3, father: "Phawuli", mother: "MaDongola" }, "simangele": { id: "simangele", name: "Simangele", gen: 3, father: "Phawuli", mother: "MaDongola" }, "nkosana": { id: "nkosana", name: "Nkosana", gen: 3, father: "Phawuli", mother: "MaDongola" }, "nobuhle": { id: "nobuhle", name: "Nobuhle", gen: 3, father: "Phawuli", mother: "MaDongola" }, "makhosazana": { id: "makhosazana", name: "Makhosazana", gen: 3, father: "Phawuli", mother: "MaDongola" }, "musawenkosi": { id: "musawenkosi", name: "Musawenkosi", gen: 3, father: "Phawuli", mother: "MaDongola" }, "khumbulani": { id: "khumbulani", name: "Khumbulani", gen: 3, father: "Phawuli", mother: "MaSitsha" }, "mpiyabo": { id: "mpiyabo", name: "Mpiyabo", gen: 3, father: "Phawuli", mother: "MaSitsha" }, "bhekusizi": { id: "bhekusizi", name: "Bhekusizi", gen: 3, father: "Phawuli", mother: "MaSitsha" }, "sifanjani": { id: "sifanjani", name: "Sifanjani", gen: 3, father: "Phawuli", mother: "MaSitsha" }, "thembelani": { id: "thembelani", name: "Thembelani", gen: 3, father: "Phawuli", mother: "MaSitsha" }, "likhwanyana": { id: "likhwanyana", name: "Likhwanyana", gen: 3, father: "Phawuli", mother: "MaSitsha" }, "kwazinkosi": { id: "kwazinkosi", name: "Kwazinkosi", gen: 3, father: "Phawuli", mother: "MaSitsha" }, "grenja": { id: "grenja", name: "Grenja", gen: 3, father: "Phawuli", mother: "Other Women" }, "thameni": { id: "thameni", name: "Thameni", gen: 3, father: "Phawuli", mother: "Other Women" }, "vusa": { id: "vusa", name: "Vusa", gen: 3, father: "Phawuli", mother: "Other Women" }, "mlamuli": { id: "mlamuli", name: "Mlamuli", gen: 3, father: "Phawuli", mother: "Other Women" },
+            "zale": { id: "zale", name: "Zale", gen: 3, father: "Ganda", mother: "Ma Dube" }, "rebecca": { id: "rebecca", name: "Rebecca", gen: 3, father: "Ganda", mother: "Ma Dube" }, "thiwe": { id: "thiwe", name: "Thiwe", gen: 3, father: "Ganda", mother: "Ma Dube", status: "late" }, "sibongile": { id: "sibongile", name: "Sibongile", gen: 3, father: "Ganda", mother: "Ma Dube", status: "late" }, "melodisi": { id: "melodisi", name: "Melodisi", gen: 3, father: "Ganda", mother: "Ma Dube" }, "zenzo": { id: "zenzo", name: "Zenzo", gen: 3, father: "Ganda", mother: "Magagula", status: "late" }, "aupa": { id: "aupa", name: "Aupa", gen: 3, father: "Ganda", mother: "Magagula" }, "dumisani": { id: "dumisani", name: "Dumisani", gen: 3, father: "Ganda", mother: "Magagula", status: "late" }, "sibangani": { id: "sibangani", name: "Sibangani", gen: 3, father: "Ganda", mother: "Magagula" }, "thefiya": { id: "thefiya", name: "Thefiya", gen: 3, father: "Ganda", mother: "Magagula" }, "ngqala": { id: "ngqala", name: "Ngqala", gen: 3, father: "Ganda", mother: "Magagula" },
+            "gladmore": { id: "gladmore", name: "Gladmore", gen: 3, father: "Nani", mother: "Ma Mpofu" }, "gladys": { id: "gladys", name: "Gladys", gen: 3, father: "Nani", mother: "Ma Mpofu", status: "late" }, "gladwin": { id: "gladwin", name: "Gladwin", gen: 3, father: "Nani", mother: "Ma Mpofu", status: "late" }, "garnet": { id: "garnet", name: "Garnet", gen: 3, father: "Nani", mother: "Ma Mpofu", status: "late" }, "gardener": { id: "gardener", name: "Gardener", gen: 3, father: "Nani", mother: "Ma Mpofu" },
+            "rose": { id: "rose", name: "Rose", gen: 3, father: "Philemon", mother: "Ma Nyembezi" }, "hopewell": { id: "hopewell", name: "Hopewell", gen: 3, father: "Philemon", mother: "MaSibanda" }, "irine": { id: "irine", name: "Irine", gen: 3, father: "Philemon", mother: "MaSibanda" }, "charm": { id: "charm", name: "Charm", gen: 3, father: "Philemon", mother: "MaSibanda", status: "late" }, "thembinkosi": { id: "thembinkosi", name: "Thembinkosi", gen: 3, father: "Philemon", mother: "MaSibanda" }, "doughton": { id: "doughton", name: "Doughton", gen: 3, father: "Philemon", mother: "MaSibanda" }, "danford": { id: "danford", name: "Danford", gen: 3, father: "Philemon", mother: "MaSibanda" }, "brighton": { id: "brighton", name: "Brighton", gen: 3, father: "Philemon", mother: "MaDube" }, "simangaliphi": { id: "simangaliphi", name: "Simangaliphi", gen: 3, father: "Philemon", mother: "MaDube", status: "late" }, "silindelumusa": { id: "silindelumusa", name: "Silindelumusa", gen: 3, father: "Philemon", mother: "MaDube", status: "late" }, "sikhathele": { id: "sikhathele", name: "Sikhathele", gen: 3, father: "Philemon", mother: "MaDube" }, "ntombizodwa": { id: "ntombizodwa", name: "Ntombizodwa", gen: 3, father: "Philemon", mother: "MaDube" }, "xolani": { id: "xolani", name: "Xolani", gen: 3, father: "Philemon", mother: "MaDube" }, "cleopas": { id: "cleopas", name: "Cleopas", gen: 3, father: "Philemon", mother: "MaDube" }, "last": { id: "last", name: "Last", gen: 3, father: "Philemon", mother: "MaDube" }, "painford": { id: "painford", name: "Painford", gen: 3, father: "Philemon", mother: "MaDube" }, "onias": { id: "onias", name: "Onias", gen: 3, father: "Philemon", mother: "MaNyathi" }, "bowen": { id: "bowen", name: "Bowen", gen: 3, father: "Philemon", mother: "MaNyathi" }, "tholakele": { id: "tholakele", name: "Tholakele", gen: 3, father: "Philemon", mother: "MaNyathi" }, "siduduzile": { id: "siduduzile", name: "Siduduzile", gen: 3, father: "Philemon", mother: "MaNyathi" }, "sithulisiwe": { id: "sithulisiwe", name: "Sithulisiwe", gen: 3, father: "Philemon", mother: "MaNyathi" }, "obvious": { id: "obvious", name: "Obvious", gen: 3, father: "Philemon", mother: "MaNyathi" }, "mkhululi": { id: "mkhululi", name: "Mkhululi", gen: 3, father: "Philemon", mother: "Ma Moyo" }
+        };
+
+        // UI State
+        const expandedNodes = new Set();
+        // Expand the root by default
+        expandedNodes.add('mtalisi');
+        let currentModalId = null;
+
+        // Initialization
+        window.onload = function() {
+            renderTree();
+            setupDragToPan();
+            
+            // Save notes listener
+            document.getElementById('modal-note').addEventListener('input', (e) => {
+                if (currentModalId) localStorage.setItem(`note_${currentModalId}`, e.target.value);
+            });
+        };
+
+        // Rendering Engine for the Map
+        function renderTree() {
+            const html = `<ul>${renderNode('mtalisi')}</ul>`;
+            document.getElementById('tree-mount').innerHTML = html;
+        }
+
+        // Recursive Map Node Generator
+        function renderNode(id) {
+            const member = familyData[id];
+            if (!member) return '';
+
+            let html = `<li>`;
+            
+            // Generate The Node Card
+            const isLate = member.status === 'late';
+            const isRoot = member.id === 'mtalisi';
+            
+            html += `<div class="inline-block relative">`;
+            
+            html += `
+                <div onclick="openModal('${id}')" class="w-44 bg-white border-2 border-stone-200 rounded-xl p-3 shadow-sm hover:shadow-md hover:border-amber-600 transition-all cursor-pointer group">
+                    <div class="font-serif font-bold text-base truncate ${isLate ? 'text-stone-400 line-through' : 'text-ink-dark'}">${member.name}</div>
+                    <div class="text-[9px] text-stone-400 uppercase tracking-widest mt-1">${isRoot ? 'Patriarch' : 'Gen ' + member.gen}</div>
+                </div>
+            `;
+
+            // Does this person have children?
+            let childrenIds = [];
+            if (member.wives) {
+                member.wives.forEach(w => childrenIds.push(...w.children));
+            }
+
+            if (childrenIds.length > 0) {
+                const isExpanded = expandedNodes.has(id);
+                
+                // Toggle Button
+                html += `
+                    <button onclick="toggleExpand('${id}')" class="absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-6 bg-white border border-stone-300 rounded-full flex items-center justify-center text-stone-600 hover:text-amber-600 hover:border-amber-600 text-sm shadow-sm z-10 transition-colors focus:outline-none">
+                        ${isExpanded ? '−' : '＋'}
+                    </button>
+                `;
+                html += `</div>`; // Close inline-block
+
+                // Render Children Branches
+                if (isExpanded) {
+                    html += `<ul>`;
+                    
+                    if (isRoot) {
+                        // Root Level: Group strictly by the 4 Houses
+                        member.wives.forEach((wife, wIdx) => {
+                            html += `<li>`;
+                            html += `
+                                <div class="inline-block">
+                                    <div class="bg-stone-200 border border-stone-300 text-stone-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest mb-3 shadow-sm">
+                                        House ${wIdx + 1}: ${wife.name.split('(')[0].trim()}
+                                    </div>
+                                </div>
+                            `;
+                            if (wife.children.length > 0) {
+                                html += `<ul>`;
+                                wife.children.forEach(cId => { html += renderNode(cId); });
+                                html += `</ul>`;
+                            }
+                            html += `</li>`;
+                        });
+                    } else {
+                        // General Generational Level: Group by mother if multiple wives exist
+                        if (member.wives.length > 1) {
+                            member.wives.forEach((wife) => {
+                                if (wife.children.length > 0) {
+                                    html += `<li>`;
+                                    html += `
+                                        <div class="inline-block">
+                                            <div class="bg-stone-100 border border-stone-200 text-stone-500 px-2 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-wider mb-2">
+                                                With ${wife.name.split('(')[0].trim()}
+                                            </div>
+                                        </div>
+                                    `;
+                                    html += `<ul>`;
+                                    wife.children.forEach(cId => { html += renderNode(cId); });
+                                    html += `</ul>`;
+                                    html += `</li>`;
+                                }
+                            });
+                        } else {
+                            // Only 1 wife, render children flatly
+                            member.wives.forEach(wife => {
+                                wife.children.forEach(cId => { html += renderNode(cId); });
+                            });
+                        }
+                    }
+                    html += `</ul>`;
+                }
+            } else {
+                html += `</div>`; // Close inline-block for childless nodes
+            }
+
+            html += `</li>`;
+            return html;
+        }
+
+        // Interactions
+        function toggleExpand(id) {
+            if (expandedNodes.has(id)) {
+                expandedNodes.delete(id);
+            } else {
+                expandedNodes.add(id);
+            }
+            renderTree();
+        }
+
+        // Map Zoom Controls
+        let currentScale = 1;
+        function zoomTree(direction) {
+            const mount = document.getElementById('tree-mount');
+            if (direction === 'in' && currentScale < 1.5) currentScale += 0.1;
+            if (direction === 'out' && currentScale > 0.5) currentScale -= 0.1;
+            mount.style.transform = `scale(${currentScale})`;
+        }
+
+        // Modal Engine
+        function openModal(id) {
+            const member = familyData[id];
+            currentModalId = id;
+
+            // Populate Text
+            document.getElementById('modal-name').innerText = member.name;
+            const rom = member.gen === 1 ? 'I' : member.gen === 2 ? 'II' : 'III';
+            document.getElementById('modal-gen').innerText = `Generation ${rom}`;
+            
+            if(member.id === 'mtalisi') {
+                document.getElementById('modal-parents').innerText = 'Founding Ancestor';
+            } else {
+                const mom = member.mother ? member.mother.split('(')[0].trim() : '?';
+                document.getElementById('modal-parents').innerText = `Child of ${member.father} & ${mom}`;
+            }
+
+            // Populate Spouses
+            const spList = document.getElementById('modal-spouses');
+            const spWrap = document.getElementById('modal-spouses-wrapper');
+            spList.innerHTML = '';
+            
+            if (member.wives && member.wives.length > 0) {
+                spWrap.classList.remove('hidden');
+                member.wives.forEach(w => {
+                    spList.innerHTML += `
+                        <li class="bg-stone-50 border border-stone-200 rounded-lg px-4 py-2 text-sm text-stone-700 font-medium flex justify-between items-center">
+                            <span>${w.name}</span>
+                            <span class="text-[10px] uppercase text-stone-400 tracking-wider">${w.children.length} Children</span>
+                        </li>
+                    `;
+                });
+            } else {
+                spWrap.classList.add('hidden');
+            }
+
+            // Populate Children
+            const chList = document.getElementById('modal-children');
+            const chWrap = document.getElementById('modal-children-wrapper');
+            chList.innerHTML = '';
+            
+            let allChildren = [];
+            if (member.wives) {
+                member.wives.forEach(w => allChildren.push(...w.children));
+            }
+
+            if (allChildren.length > 0) {
+                chWrap.classList.remove('hidden');
+                allChildren.forEach(cId => {
+                    const child = familyData[cId];
+                    if (child) {
+                        const isLate = child.status === 'late';
+                        chList.innerHTML += `
+                            <button onclick="openModal('${cId}')" class="px-3 py-1.5 bg-white border border-stone-200 hover:border-amber-400 hover:shadow-sm rounded-lg text-xs font-serif font-medium transition-all ${isLate ? 'text-stone-400 line-through' : 'text-ink-dark'}">
+                                ${child.name}
+                            </button>
+                        `;
+                    }
+                });
+            } else {
+                chWrap.classList.add('hidden');
+            }
+
+            // Populate Notes
+            document.getElementById('modal-note').value = localStorage.getItem(`note_${id}`) || '';
+
+            // Show Modal with Animation
+            const overlay = document.getElementById('modal-overlay');
+            const content = document.getElementById('modal-content');
+            overlay.classList.remove('hidden');
+            // Small delay to allow display:block to apply before animating opacity
+            setTimeout(() => {
+                overlay.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeModal(event) {
+            // Close if clicking the background overlay
+            if (event.target.id === 'modal-overlay') {
+                forceCloseModal();
+            }
+        }
+
+        function forceCloseModal() {
+            const overlay = document.getElementById('modal-overlay');
+            const content = document.getElementById('modal-content');
+            
+            overlay.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+            }, 300);
+        }
+
+        // Google-Maps-Style Drag to Pan functionality
+        function setupDragToPan() {
+            const slider = document.getElementById('tree-container');
+            let isDown = false;
+            let startX, startY;
+            let scrollLeft, scrollTop;
+
+            slider.addEventListener('mousedown', (e) => {
+                // Prevent drag if they are clicking a card (button or interactive div inside)
+                if (e.target.closest('.node-card') || e.target.closest('button')) return;
+                
+                isDown = true;
+                slider.classList.add('cursor-grabbing');
+                startX = e.pageX - slider.offsetLeft;
+                startY = e.pageY - slider.offsetTop;
+                scrollLeft = slider.scrollLeft;
+                scrollTop = slider.scrollTop;
+            });
+            
+            slider.addEventListener('mouseleave', () => {
+                isDown = false;
+                slider.classList.remove('cursor-grabbing');
+            });
+            
+            slider.addEventListener('mouseup', () => {
+                isDown = false;
+                slider.classList.remove('cursor-grabbing');
+            });
+            
+            slider.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - slider.offsetLeft;
+                const y = e.pageY - slider.offsetTop;
+                const walkX = (x - startX) * 1.5; // Scroll speed multiplier
+                const walkY = (y - startY) * 1.5;
+                slider.scrollLeft = scrollLeft - walkX;
+                slider.scrollTop = scrollTop - walkY;
+            });
+        }
+    </script>
+</body>
+</html>
