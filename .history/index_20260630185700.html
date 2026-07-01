@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="An interactive, digital preservation of the descendants and genealogy of the Patriarch Mtalisi.">
+    <title>Inzalo KaMtalisi | Isihlahla Somndeni</title>
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Premium Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { serif: ['Playfair Display', 'serif'], sans: ['Plus Jakarta Sans', 'sans-serif'] },
+                    colors: {
+                        navy: {
+                            800: '#1e293b', /* Slate 800 */
+                            900: '#0f172a', /* Slate 900 */
+                            950: '#020617', /* Slate 950 */
+                        },
+                        nd: {
+                            red: '#e11d48',
+                            blue: '#2563eb',
+                            green: '#16a34a',
+                            yellow: '#f59e0b',
+                            cyan: '#06b6d4'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { 
+            background: radial-gradient(circle at top center, #1e293b, #020617);
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+        
+        /* The uploaded Ndebele pattern used as striking borders */
+        .pattern-banner {
+            background-image: url('IMG_7223.jpeg');
+            background-size: contain;
+            background-repeat: repeat-x;
+            background-position: center;
+            height: 48px;
+            width: 100%;
+            border-bottom: 2px solid #06b6d4;
+        }
+        .pattern-banner-bottom {
+            background-image: url('IMG_7223.jpeg');
+            background-size: contain;
+            background-repeat: repeat-x;
+            background-position: center;
+            height: 48px;
+            width: 100%;
+            border-top: 2px solid #06b6d4;
+        }
+
+        /* Scrollbars */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
+        
+        /* Animations */
+        .explorer-canvas { transition: opacity 0.4s ease, transform 0.4s ease; }
+        .fade-out { opacity: 0; transform: scale(0.98); }
+        .fade-in { opacity: 1; transform: scale(1); }
+
+        /* Cyan Connector Lines for the Dark Blue Theme */
+        .conn-line-down::after { 
+            content: ''; position: absolute; bottom: -28px; left: 50%; width: 2px; height: 28px; 
+            background-color: #06b6d4; transform: translateX(-50%); z-index: 0;
+        }
+        .conn-line-up::before { 
+            content: ''; position: absolute; top: -28px; left: 50%; width: 2px; height: 28px; 
+            background-color: #06b6d4; transform: translateX(-50%); z-index: 0;
+        }
+        .conn-bracket::before { 
+            content: ''; position: absolute; top: -28px; left: 15%; right: 15%; height: 2px; 
+            background-color: #06b6d4; z-index: 0;
+        }
+        
+        /* Note Save Indicator Animation */
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            70% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        .save-indicator { animation: fadeOut 2s forwards; }
+    </style>
+</head>
+<body class="font-sans flex flex-col antialiased selection:bg-nd-cyan selection:text-navy-950 relative overflow-x-hidden">
+
+    <!-- Top Geometric Banner -->
+    <div class="pattern-banner"></div>
+
+    <!-- Header -->
+    <header class="pt-8 pb-6 px-6 relative z-10 flex flex-col items-center justify-center max-w-7xl mx-auto w-full gap-4 text-center">
+        <span class="text-nd-cyan text-[10px] font-bold tracking-[0.4em] uppercase mb-1 block">Isihlahla Somndeni</span>
+        <h1 class="text-4xl md:text-6xl font-serif font-bold tracking-tight text-white">Inzalo KaMtalisi</h1>
+        <p class="text-slate-400 text-sm md:text-base font-serif italic mt-2 tracking-widest">
+            "Umuntu ngumuntu ngabantu"
+        </p>
+    </header>
+
+    <!-- Navigation -->
+    <div class="sticky top-0 z-40 px-4 py-3 flex justify-center pointer-events-none mb-4">
+        <div class="bg-navy-800/90 backdrop-blur-md border border-slate-700 p-1.5 rounded-full flex gap-1 pointer-events-auto overflow-x-auto shadow-xl">
+            <button onclick="switchTab('explorer')" id="tab-explorer" class="nav-btn bg-nd-cyan text-navy-950 px-6 py-2 text-sm font-bold uppercase tracking-wider rounded-full transition-all whitespace-nowrap flex items-center gap-2 shadow-lg">
+                Izimpande (Family Tree)
+            </button>
+            <button onclick="switchTab('directory')" id="tab-directory" class="nav-btn text-slate-300 hover:text-white hover:bg-slate-700 px-6 py-2 text-sm font-bold uppercase tracking-wider rounded-full transition-all whitespace-nowrap flex items-center gap-2">
+                Amarekhodi (Registry)
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN WORKSPACE -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6 mb-12 relative z-10 flex flex-col">
+
+        <!-- TAB 1: THE FOCUS EXPLORER -->
+        <div id="view-explorer" class="tab-view flex-grow flex flex-col">
+            <div class="bg-navy-900/60 border border-slate-700 rounded-[2rem] p-6 md:p-12 flex-grow flex flex-col relative overflow-hidden shadow-2xl">
+                
+                <!-- Quick Navigation Bar -->
+                <div class="absolute top-6 left-6 right-6 flex justify-between items-center z-20">
+                    <button onclick="renderFocusNode('mtalisi')" class="text-xs font-bold uppercase tracking-widest text-slate-300 bg-navy-800 hover:bg-slate-700 hover:text-white border border-slate-600 px-4 py-2 rounded-full transition-all flex items-center gap-2 shadow-md">
+                        ← Return to Patriarch
+                    </button>
+                    <div class="text-[10px] uppercase tracking-widest text-nd-cyan bg-nd-cyan/10 border border-nd-cyan/30 px-4 py-1.5 rounded-full font-bold hidden md:block">Interactive Mode</div>
+                </div>
+
+                <!-- DYNAMIC CANVAS -->
+                <div id="focus-canvas" class="explorer-canvas fade-in flex-grow flex flex-col items-center justify-center mt-16 gap-12 w-full">
+                    <!-- Javascript will inject the nodes here -->
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- TAB 2: COMPLETE REGISTRY -->
+        <div id="view-directory" class="tab-view hidden flex-grow">
+            <div class="bg-navy-900/60 border border-slate-700 rounded-[2rem] p-6 md:p-10 min-h-[700px] shadow-2xl">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-8 border-b border-slate-700 pb-6">
+                    <div>
+                        <h2 class="text-3xl font-serif font-bold text-white">The Great Ledger</h2>
+                        <p class="text-sm text-slate-400 mt-1">Search the complete ancestral records.</p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                        <div class="relative w-full sm:w-64">
+                            <input type="text" id="dir-search" oninput="updateDirectory()" placeholder="Search relatives..." class="w-full bg-navy-950 border border-slate-700 rounded-xl pl-4 pr-4 py-3 text-sm text-white focus:ring-2 focus:ring-nd-cyan focus:outline-none transition-all placeholder-slate-500 shadow-inner">
+                        </div>
+                        <select id="dir-sort" onchange="updateDirectory()" class="bg-navy-950 border border-slate-700 rounded-xl px-4 py-3 text-sm font-medium text-white focus:ring-2 focus:ring-nd-cyan focus:outline-none cursor-pointer shadow-inner">
+                            <option value="gen">Sort by Generation</option>
+                            <option value="az">Sort Alphabetically (A-Z)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="registry-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Geometric Banner -->
+    <div class="pattern-banner-bottom mt-auto"></div>
+
+    <script>
+        /* --- HOUSE COLOR CODING --- */
+        const houseColors = [
+            { bg: 'bg-nd-red/20', border: 'border-nd-red', text: 'text-nd-red' },
+            { bg: 'bg-nd-blue/20', border: 'border-nd-blue', text: 'text-nd-blue' },
+            { bg: 'bg-nd-green/20', border: 'border-nd-green', text: 'text-nd-green' },
+            { bg: 'bg-nd-yellow/20', border: 'border-nd-yellow', text: 'text-nd-yellow' },
+            { bg: 'bg-slate-800', border: 'border-slate-600', text: 'text-white' }
+        ];
+
+        /* --- CORE DATA ARCHITECTURE --- */
+        const familyData = {
+            "mtalisi": { id: "mtalisi", name: "Mtalisi", gen: 1, father: null, mother: null, wives: [ { name: "Ma Moyo (Makhumalo)", children: ["msindo", "gumi", "khukhuzana", "hlanya", "bhenga"] }, { name: "MaMoyo (Mnawakhe)", children: ["baleni", "emeli", "phawuli"] }, { name: "Ma Dube (naka Ganda)", children: ["makhohliso", "ganda", "nani", "marry", "sosi", "ntombana"] }, { name: "Malele (naka Philemon)", children: ["philemon"] } ], house: "all" },
+            
+            // Gen 2
+            "msindo": { id: "msindo", name: "Msindo", gen: 2, father: "mtalisi", mother: "Ma Moyo (Makhumalo)", house: 0, wives: [ { name: "Ma Sibanda", children: ["rita", "dorothy", "robert", "ebbie", "dickson", "promise"] }, { name: "Agnes Mafu", children: ["herta"] }, { name: "Sofi (Ma Mpofu)", children: ["nehemiah", "jeconiah", "vilet", "nico", "jabu", "thoko"] }, { name: "Dandani", children: ["makheyi", "sis_g"] } ] },
+            "gumi": { id: "gumi", name: "Gumi", gen: 2, father: "mtalisi", mother: "Ma Moyo (Makhumalo)", house: 0 },
+            "khukhuzana": { id: "khukhuzana", name: "Khukhuzana", gen: 2, father: "mtalisi", mother: "Ma Moyo (Makhumalo)", house: 0 },
+            "hlanya": { id: "hlanya", name: "Hlanya", gen: 2, father: "mtalisi", mother: "Ma Moyo (Makhumalo)", house: 0, wives: [ { name: "Lezzie", children: ["henry", "harvey", "playford", "dayina", "obed", "sithembile", "danisa", "levious", "salvinah"] } ] },
+            "bhenga": { id: "bhenga", name: "Bhenga", gen: 2, father: "mtalisi", mother: "Ma Moyo (Makhumalo)", house: 0 },
+
+            "baleni": { id: "baleni", name: "Baleni", gen: 2, father: "mtalisi", mother: "MaMoyo (Mnawakhe)", house: 1, wives: [ { name: "Ma Ngwenya", children: ["mgoli", "bhoyi"] }, { name: "Magagula", children: ["nesi", "sibusisiwe", "sethi"] }, { name: "Ma Moyo", children: ["themba", "sdudla", "filisiya"] }, { name: "Ma Ndlovu", children: ["alpheos", "sarah"] } ] },
+            "emeli": { id: "emeli", name: "Emeli", gen: 2, father: "mtalisi", mother: "MaMoyo (Mnawakhe)", house: 1 },
+            "phawuli": { id: "phawuli", name: "Phawuli", gen: 2, father: "mtalisi", mother: "MaMoyo (Mnawakhe)", house: 1, wives: [ { name: "MaDongola", children: ["sikhangezile", "sikhangele", "simangele", "nkosana", "nobuhle", "makhosazana", "musawenkosi"] }, { name: "MaSitsha", children: ["khumbulani", "mpiyabo", "bhekusizi", "sifanjani", "thembelani", "likhwanyana", "kwazinkosi"] }, { name: "Other Women", children: ["grenja", "thameni", "vusa", "mlamuli"] } ] },
+
+            "makhohliso": { id: "makhohliso", name: "Makhohliso", gen: 2, father: "mtalisi", mother: "Ma Dube", house: 2 },
+            "ganda": { id: "ganda", name: "Ganda", gen: 2, father: "mtalisi", mother: "Ma Dube", house: 2, wives: [ { name: "Ma Dube", children: ["zale", "rebecca", "thiwe", "sibongile", "melodisi"] }, { name: "MaGagula", children: ["zenzo", "aupa", "dumisani", "sibangani", "thefiya", "ngqala"] } ] },
+            "nani": { id: "nani", name: "Nani", gen: 2, father: "mtalisi", mother: "Ma Dube", house: 2, wives: [ { name: "Ma Mpofu", children: ["gladmore", "gladys", "gladwin", "garnet", "gardener"] } ] },
+            "marry": { id: "marry", name: "Marry", gen: 2, father: "mtalisi", mother: "Ma Dube", house: 2 },
+            "sosi": { id: "sosi", name: "Sosi", gen: 2, father: "mtalisi", mother: "Ma Dube", house: 2 },
+            "ntombana": { id: "ntombana", name: "Ntombana", gen: 2, father: "mtalisi", mother: "Ma Dube", house: 2 },
+
+            "philemon": { id: "philemon", name: "Philemon", gen: 2, father: "mtalisi", mother: "Malele", house: 3, wives: [ { name: "Ma Nyembezi", children: ["rose"] }, { name: "MaSibanda", children: ["hopewell", "irine", "charm", "thembinkosi", "doughton", "danford"] }, { name: "MaDube", children: ["brighton", "simangaliphi", "silindelumusa", "sikhathele", "ntombizodwa", "xolani", "cleopas", "last", "painford"] }, { name: "MaNyathi", children: ["onias", "bowen", "tholakele", "siduduzile", "sithulisiwe", "obvious"] }, { name: "Ma Moyo", children: ["mkhululi"] } ] },
+
+            // Gen 3
+            "rita": { id: "rita", name: "Rita", gen: 3, father: "msindo", mother: "Ma Sibanda", house: 0 }, "dorothy": { id: "dorothy", name: "Dorothy", gen: 3, father: "msindo", mother: "Ma Sibanda", house: 0 }, "robert": { id: "robert", name: "Robert", gen: 3, father: "msindo", mother: "Ma Sibanda", house: 0 }, "ebbie": { id: "ebbie", name: "Ebbie", gen: 3, father: "msindo", mother: "Ma Sibanda", house: 0 }, "dickson": { id: "dickson", name: "Dickson", gen: 3, father: "msindo", mother: "Ma Sibanda", house: 0 }, "promise": { id: "promise", name: "Promise", gen: 3, father: "msindo", mother: "Ma Sibanda", house: 0 }, "herta": { id: "herta", name: "Herta", gen: 3, father: "msindo", mother: "Agnes Mafu", house: 0 }, "nehemiah": { id: "nehemiah", name: "Nehemiah", gen: 3, father: "msindo", mother: "Sofi", house: 0 }, "jeconiah": { id: "jeconiah", name: "Jeconiah", gen: 3, father: "msindo", mother: "Sofi", house: 0 }, "vilet": { id: "vilet", name: "Vilet", gen: 3, father: "msindo", mother: "Sofi", house: 0 }, "nico": { id: "nico", name: "Nico", gen: 3, father: "msindo", mother: "Sofi", house: 0 }, "jabu": { id: "jabu", name: "Jabu", gen: 3, father: "msindo", mother: "Sofi", house: 0 }, "thoko": { id: "thoko", name: "Thoko", gen: 3, father: "msindo", mother: "Sofi", house: 0 }, "makheyi": { id: "makheyi", name: "Makheyi", gen: 3, father: "msindo", mother: "Dandani", house: 0 }, "sis_g": { id: "sis_g", name: "Sis G", gen: 3, father: "msindo", mother: "Dandani", house: 0 },
+            "henry": { id: "henry", name: "Henry", gen: 3, father: "hlanya", mother: "Lezzie", house: 0 }, "harvey": { id: "harvey", name: "Harvey", gen: 3, father: "hlanya", mother: "Lezzie", house: 0 }, "playford": { id: "playford", name: "Playford", gen: 3, father: "hlanya", mother: "Lezzie", house: 0 }, "dayina": { id: "dayina", name: "Dayina", gen: 3, father: "hlanya", mother: "Lezzie", house: 0 }, "obed": { id: "obed", name: "Obed", gen: 3, father: "hlanya", mother: "Lezzie", house: 0 }, "sithembile": { id: "sithembile", name: "Sithembile", gen: 3, father: "hlanya", mother: "Lezzie", house: 0 }, "danisa": { id: "danisa", name: "Danisa", gen: 3, father: "hlanya", mother: "Lezzie", house: 0 }, "levious": { id: "levious", name: "Levious", gen: 3, father: "hlanya", mother: "Lezzie", house: 0 }, "salvinah": { id: "salvinah", name: "Salvinah", gen: 3, father: "hlanya", mother: "Lezzie", house: 0 },
+            "mgoli": { id: "mgoli", name: "Mgoli", gen: 3, father: "baleni", mother: "Ma Ngwenya", house: 1 }, "bhoyi": { id: "bhoyi", name: "Bhoyi", gen: 3, father: "baleni", mother: "Ma Ngwenya", house: 1 }, "nesi": { id: "nesi", name: "Nesi", gen: 3, father: "baleni", mother: "Magagula", house: 1 }, "sibusisiwe": { id: "sibusisiwe", name: "Sibusisiwe", gen: 3, father: "baleni", mother: "Magagula", house: 1 }, "sethi": { id: "sethi", name: "Sethi", gen: 3, father: "baleni", mother: "Magagula", house: 1 }, "themba": { id: "themba", name: "Themba", gen: 3, father: "baleni", mother: "Ma Moyo", house: 1 }, "sdudla": { id: "sdudla", name: "Sdudla", gen: 3, father: "baleni", mother: "Ma Moyo", house: 1 }, "filisiya": { id: "filisiya", name: "Filisiya", gen: 3, father: "baleni", mother: "Ma Moyo", house: 1 }, "alpheos": { id: "alpheos", name: "Alpheos", gen: 3, father: "baleni", mother: "Ma Ndlovu", house: 1 }, "sarah": { id: "sarah", name: "Sarah", gen: 3, father: "baleni", mother: "Ma Ndlovu", house: 1 },
+            "sikhangezile": { id: "sikhangezile", name: "Sikhangezile", gen: 3, father: "phawuli", mother: "MaDongola", house: 1 }, "sikhangele": { id: "sikhangele", name: "Sikhangele", gen: 3, father: "phawuli", mother: "MaDongola", house: 1 }, "simangele": { id: "simangele", name: "Simangele", gen: 3, father: "phawuli", mother: "MaDongola", house: 1 }, "nkosana": { id: "nkosana", name: "Nkosana", gen: 3, father: "phawuli", mother: "MaDongola", house: 1 }, "nobuhle": { id: "nobuhle", name: "Nobuhle", gen: 3, father: "phawuli", mother: "MaDongola", house: 1 }, "makhosazana": { id: "makhosazana", name: "Makhosazana", gen: 3, father: "phawuli", mother: "MaDongola", house: 1 }, "musawenkosi": { id: "musawenkosi", name: "Musawenkosi", gen: 3, father: "phawuli", mother: "MaDongola", house: 1 }, "khumbulani": { id: "khumbulani", name: "Khumbulani", gen: 3, father: "phawuli", mother: "MaSitsha", house: 1 }, "mpiyabo": { id: "mpiyabo", name: "Mpiyabo", gen: 3, father: "phawuli", mother: "MaSitsha", house: 1 }, "bhekusizi": { id: "bhekusizi", name: "Bhekusizi", gen: 3, father: "phawuli", mother: "MaSitsha", house: 1 }, "sifanjani": { id: "sifanjani", name: "Sifanjani", gen: 3, father: "phawuli", mother: "MaSitsha", house: 1 }, "thembelani": { id: "thembelani", name: "Thembelani", gen: 3, father: "phawuli", mother: "MaSitsha", house: 1 }, "likhwanyana": { id: "likhwanyana", name: "Likhwanyana", gen: 3, father: "phawuli", mother: "MaSitsha", house: 1 }, "kwazinkosi": { id: "kwazinkosi", name: "Kwazinkosi", gen: 3, father: "phawuli", mother: "MaSitsha", house: 1 }, "grenja": { id: "grenja", name: "Grenja", gen: 3, father: "phawuli", mother: "Other Women", house: 1 }, "thameni": { id: "thameni", name: "Thameni", gen: 3, father: "phawuli", mother: "Other Women", house: 1 }, "vusa": { id: "vusa", name: "Vusa", gen: 3, father: "phawuli", mother: "Other Women", house: 1 }, "mlamuli": { id: "mlamuli", name: "Mlamuli", gen: 3, father: "phawuli", mother: "Other Women", house: 1 },
+            "zale": { id: "zale", name: "Zale", gen: 3, father: "ganda", mother: "Ma Dube", house: 2 }, "rebecca": { id: "rebecca", name: "Rebecca", gen: 3, father: "ganda", mother: "Ma Dube", house: 2 }, "thiwe": { id: "thiwe", name: "Thiwe", gen: 3, father: "ganda", mother: "Ma Dube", house: 2 }, "sibongile": { id: "sibongile", name: "Sibongile", gen: 3, father: "ganda", mother: "Ma Dube", house: 2 }, "melodisi": { id: "melodisi", name: "Melodisi", gen: 3, father: "ganda", mother: "Ma Dube", house: 2 }, "zenzo": { id: "zenzo", name: "Zenzo", gen: 3, father: "ganda", mother: "Magagula", house: 2 }, "aupa": { id: "aupa", name: "Aupa", gen: 3, father: "ganda", mother: "Magagula", house: 2 }, "dumisani": { id: "dumisani", name: "Dumisani", gen: 3, father: "ganda", mother: "Magagula", house: 2 }, "sibangani": { id: "sibangani", name: "Sibangani", gen: 3, father: "ganda", mother: "Magagula", house: 2 }, "thefiya": { id: "thefiya", name: "Thefiya", gen: 3, father: "ganda", mother: "Magagula", house: 2 }, "ngqala": { id: "ngqala", name: "Ngqala", gen: 3, father: "ganda", mother: "Magagula", house: 2 },
+            "gladmore": { id: "gladmore", name: "Gladmore", gen: 3, father: "nani", mother: "Ma Mpofu", house: 2 }, "gladys": { id: "gladys", name: "Gladys", gen: 3, father: "nani", mother: "Ma Mpofu", house: 2 }, "gladwin": { id: "gladwin", name: "Gladwin", gen: 3, father: "nani", mother: "Ma Mpofu", house: 2 }, "garnet": { id: "garnet", name: "Garnet", gen: 3, father: "nani", mother: "Ma Mpofu", house: 2 }, "gardener": { id: "gardener", name: "Gardener", gen: 3, father: "nani", mother: "Ma Mpofu", house: 2 },
+            "rose": { id: "rose", name: "Rose", gen: 3, father: "philemon", mother: "Ma Nyembezi", house: 3 }, "hopewell": { id: "hopewell", name: "Hopewell", gen: 3, father: "philemon", mother: "MaSibanda", house: 3 }, "irine": { id: "irine", name: "Irine", gen: 3, father: "philemon", mother: "MaSibanda", house: 3 }, "charm": { id: "charm", name: "Charm", gen: 3, father: "philemon", mother: "MaSibanda", house: 3 }, "thembinkosi": { id: "thembinkosi", name: "Thembinkosi", gen: 3, father: "philemon", mother: "MaSibanda", house: 3 }, "doughton": { id: "doughton", name: "Doughton", gen: 3, father: "philemon", mother: "MaSibanda", house: 3 }, "danford": { id: "danford", name: "Danford", gen: 3, father: "philemon", mother: "MaSibanda", house: 3 }, "brighton": { id: "brighton", name: "Brighton", gen: 3, father: "philemon", mother: "MaDube", house: 3 }, "simangaliphi": { id: "simangaliphi", name: "Simangaliphi", gen: 3, father: "philemon", mother: "MaDube", house: 3 }, "silindelumusa": { id: "silindelumusa", name: "Silindelumusa", gen: 3, father: "philemon", mother: "MaDube", house: 3 }, "sikhathele": { id: "sikhathele", name: "Sikhathele", gen: 3, father: "philemon", mother: "MaDube", house: 3 }, "ntombizodwa": { id: "ntombizodwa", name: "Ntombizodwa", gen: 3, father: "philemon", mother: "MaDube", house: 3 }, "xolani": { id: "xolani", name: "Xolani", gen: 3, father: "philemon", mother: "MaDube", house: 3 }, "cleopas": { id: "cleopas", name: "Cleopas", gen: 3, father: "philemon", mother: "MaDube", house: 3 }, "last": { id: "last", name: "Last", gen: 3, father: "philemon", mother: "MaDube", house: 3 }, "painford": { id: "painford", name: "Painford", gen: 3, father: "philemon", mother: "MaDube", house: 3 }, "onias": { id: "onias", name: "Onias", gen: 3, father: "philemon", mother: "MaNyathi", house: 3 }, "bowen": { id: "bowen", name: "Bowen", gen: 3, father: "philemon", mother: "MaNyathi", house: 3 }, "tholakele": { id: "tholakele", name: "Tholakele", gen: 3, father: "philemon", mother: "MaNyathi", house: 3 }, "siduduzile": { id: "siduduzile", name: "Siduduzile", gen: 3, father: "philemon", mother: "MaNyathi", house: 3 }, "sithulisiwe": { id: "sithulisiwe", name: "Sithulisiwe", gen: 3, father: "philemon", mother: "MaNyathi", house: 3 }, "obvious": { id: "obvious", name: "Obvious", gen: 3, father: "philemon", mother: "MaNyathi", house: 3 }, "mkhululi": { id: "mkhululi", name: "Mkhululi", gen: 3, father: "philemon", mother: "Ma Moyo", house: 3 }
+        };
+
+        let currentActiveDossierId = null;
+        let saveTimeout;
+
+        /* INITIALIZATION */
+        window.onload = function() {
+            renderFocusNode('mtalisi');
+            updateDirectory();
+        };
+
+        /* TAB NAVIGATION SYSTEM */
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-view').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.classList.remove('bg-nd-cyan', 'text-navy-950', 'shadow-lg');
+                el.classList.add('text-slate-300', 'hover:bg-slate-700');
+            });
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+            const btn = document.getElementById(`tab-${tabId}`);
+            btn.classList.add('bg-nd-cyan', 'text-navy-950', 'shadow-lg');
+            btn.classList.remove('text-slate-300', 'hover:bg-slate-700');
+        }
+
+        /* 1. LINEAGE FOCUS EXPLORER */
+        function renderFocusNode(memberId) {
+            const canvas = document.getElementById('focus-canvas');
+            const member = familyData[memberId];
+            if(!member) return;
+
+            currentActiveDossierId = memberId;
+
+            canvas.classList.remove('fade-in');
+            canvas.classList.add('fade-out');
+
+            setTimeout(() => {
+                let html = '';
+                const hStyle = member.house !== undefined && member.house !== "all" ? houseColors[member.house] : houseColors[4];
+
+                // A. PARENTS TIER
+                if(member.father) {
+                    const fatherObj = familyData[member.father];
+                    html += `
+                        <div class="flex flex-col items-center relative z-10 w-full">
+                            <h3 class="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400 mb-6 border-b border-slate-700 pb-2">Izimpande <span class="text-slate-500 font-sans tracking-normal">(Roots)</span></h3>
+                            <div class="flex gap-6 md:gap-12 justify-center relative w-full max-w-2xl conn-bracket">
+                                ${fatherObj ? 
+                                    createNodeCard(fatherObj.id, 'Father') : 
+                                    `<div class="bg-navy-800 border border-slate-700 rounded-2xl px-6 py-4 text-center opacity-60"><span class="block font-serif text-lg text-white">${member.father}</span><span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mt-1">Ubaba (Father)</span></div>`
+                                }
+                                ${member.mother ? 
+                                    `<div class="bg-navy-800 border border-slate-700 rounded-2xl px-6 py-4 text-center opacity-60"><span class="block font-serif text-lg text-white">${member.mother}</span><span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mt-1">Umama (Mother)</span></div>` : ''
+                                }
+                                <div class="conn-line-down"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // B. FOCUS TIER (WARRIOR + SELF + NOTES)
+                html += `<div class="flex flex-col items-center relative z-20 mt-4 w-full">`;
+                html += `<div class="flex flex-col md:flex-row items-center justify-center gap-6 ${member.father ? 'conn-line-up' : ''} ${member.wives ? 'conn-line-down' : ''} w-full max-w-5xl">`;
+                
+                const genRoman = member.gen === 1 ? 'I' : member.gen === 2 ? 'II' : 'III';
+                const savedNote = localStorage.getItem(`note_${memberId}`) || '';
+
+                html += `
+                    <div class="flex flex-col md:flex-row bg-navy-800 border border-slate-600 rounded-[2rem] shadow-2xl w-full max-w-4xl overflow-hidden relative z-30 transform scale-105">
+                        
+                        <!-- Left Side: Warrior Portrait & Name -->
+                        <div class="md:w-2/5 bg-slate-200 flex flex-col items-center justify-center p-8 relative border-b md:border-b-0 md:border-r border-slate-600">
+                            <!-- NDEBELE WARRIOR PICTURE -->
+                            <img src="ndebele warri.png" alt="Warrior Portrait" class="w-full h-48 object-contain drop-shadow-2xl relative z-10 mb-4">
+                            
+                            <div class="text-center relative z-10 w-full">
+                                <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600 mb-1 block">Isizukulwane ${genRoman}</span>
+                                <h2 class="font-serif text-3xl font-bold text-slate-900 leading-tight">${member.name}</h2>
+                                ${member.id === 'mtalisi' ? `<span class="bg-navy-950 text-white text-[10px] px-3 py-1 rounded-full uppercase tracking-widest font-bold mt-3 inline-block shadow-md">The Patriarch</span>` : ''}
+                            </div>
+                        </div>
+                        
+                        <!-- Right Side: Personal Ledger -->
+                        <div class="md:w-3/5 bg-navy-800 p-6 md:p-8 flex flex-col relative">
+                            <div class="absolute inset-0 opacity-20 pointer-events-none ${hStyle.bg}"></div>
+                            <div class="relative z-10 flex flex-col h-full">
+                                <div class="flex justify-between items-center mb-4">
+                                    <label class="text-xs font-bold uppercase tracking-widest text-nd-cyan">Amarekhodi <span class="text-[10px] text-slate-400 normal-case tracking-normal">(Personal Ledger)</span></label>
+                                    <span class="text-[10px] text-slate-500 font-bold uppercase bg-navy-950 px-2 py-0.5 rounded border border-slate-700">Local Storage</span>
+                                </div>
+                                
+                                <textarea id="modal-note-area" oninput="saveActiveNote()" placeholder="Enter deceased location, dates, or memories..." class="w-full flex-grow min-h-[120px] bg-navy-950 border border-slate-600 rounded-xl p-4 text-sm font-serif text-slate-200 focus:outline-none resize-none shadow-inner placeholder-slate-600 transition-all focus:ring-2 focus:ring-nd-cyan">${savedNote}</textarea>
+                                
+                                <div class="flex justify-between items-center mt-3">
+                                    <span id="save-indicator" class="text-[10px] text-nd-green font-bold uppercase opacity-0 transition-opacity bg-navy-900 px-2 rounded border border-nd-green/50">Saved automatically</span>
+                                    <button onclick="clearActiveNote()" class="text-[10px] text-slate-400 hover:text-nd-red font-bold transition-colors uppercase tracking-wider">Erase Ledger</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                html += `</div></div>`;
+
+                // C. CHILDREN TIER (Categorized by House)
+                if (member.wives && member.wives.length > 0) {
+                    html += `<div class="flex flex-col items-center w-full mt-16 relative z-10">`;
+                    html += `<h3 class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 mb-8 border-b border-slate-700 pb-2">Indlu <span class="text-slate-500 font-sans tracking-normal">(Lineage by House)</span></h3>`;
+                    html += `<div class="flex flex-col gap-10 w-full max-w-5xl">`;
+                    
+                    member.wives.forEach((w, wIdx) => {
+                        const wifeId = `wife-${member.id}-${wIdx}`;
+                        const blockStyle = houseColors[wIdx % 4];
+                        
+                        html += `
+                            <div class="bg-navy-900/80 border border-slate-700 rounded-[2rem] p-6 md:p-8 shadow-lg">
+                                <div onclick="toggleHouse('${wifeId}')" class="${blockStyle.bg} border-l-4 ${blockStyle.border} bg-navy-800 px-6 py-4 flex items-center justify-between cursor-pointer transition-all mb-8 w-full md:w-max mx-auto group rounded-xl shadow-md">
+                                    <div class="flex items-center gap-4">
+                                        <div class="text-left">
+                                            <span class="text-[10px] uppercase tracking-widest ${blockStyle.text} font-bold block mb-0.5 opacity-80">Umama (Mother)</span>
+                                            <span class="font-serif font-bold text-white text-xl md:text-2xl tracking-wide">${w.name}</span>
+                                        </div>
+                                    </div>
+                                    <svg id="icon-${wifeId}" class="ml-8 w-6 h-6 ${blockStyle.text} transition-transform transform rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+
+                                <div id="${wifeId}" class="flex flex-wrap justify-center gap-4 md:gap-6 transition-all">
+                        `;
+                        if(w.children.length === 0) {
+                             html += `<span class="text-sm font-serif italic text-slate-500">No descendants recorded</span>`;
+                        } else {
+                            w.children.forEach(cId => {
+                                html += createNodeCard(cId);
+                            });
+                        }
+                        html += `</div></div>`;
+                    });
+                    html += `</div></div>`;
+                }
+
+                if (!member.wives && member.gen === 3) {
+                    html += `
+                        <div class="mt-12 text-center text-slate-500 font-serif italic bg-navy-800 px-6 py-3 rounded-xl border border-slate-700 shadow-sm">
+                            End of documented lineage for this branch.
+                        </div>
+                    `;
+                }
+
+                canvas.innerHTML = html;
+                
+                requestAnimationFrame(() => {
+                    canvas.classList.remove('fade-out');
+                    canvas.classList.add('fade-in');
+                });
+            }, 300);
+        }
+
+        function createNodeCard(id) {
+            const m = familyData[id];
+            if(!m) return '';
+            const cStyle = m.house !== undefined && m.house !== "all" ? houseColors[m.house] : houseColors[4];
+            return `
+                <div onclick="renderFocusNode('${id}')" class="bg-navy-800 border border-slate-600 px-6 py-5 cursor-pointer text-center w-36 md:w-44 flex flex-col items-center justify-center group relative overflow-hidden rounded-2xl shadow-sm hover:shadow-xl hover:border-nd-cyan transition-all transform hover:-translate-y-1">
+                    <div class="absolute top-0 left-0 w-full h-1 ${cStyle.bg} border-b ${cStyle.border}"></div>
+                    <h4 class="font-serif text-xl font-bold text-white group-hover:text-nd-cyan transition-colors leading-tight mt-1">${m.name.split(' ')[0]}</h4>
+                    <span class="text-[10px] uppercase tracking-widest text-slate-400 mt-2 font-bold block">Gen ${m.gen}</span>
+                </div>
+            `;
+        }
+
+        function toggleHouse(id) {
+            const el = document.getElementById(id);
+            const icon = document.getElementById(`icon-${id}`);
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+            } else {
+                el.classList.add('hidden');
+                icon.classList.remove('rotate-180');
+            }
+        }
+
+        /* 2. COMPLETE REGISTRY */
+        function updateDirectory() {
+            const query = document.getElementById('dir-search').value.toLowerCase();
+            const sort = document.getElementById('dir-sort').value;
+            const grid = document.getElementById('registry-grid');
+            
+            let arr = Object.values(familyData).filter(m => 
+                m.name.toLowerCase().includes(query) || 
+                (m.mother && m.mother.toLowerCase().includes(query)) ||
+                (m.father && m.father.toLowerCase().includes(query))
+            );
+
+            if(sort === 'az') arr.sort((a,b) => a.name.localeCompare(b.name));
+            else arr.sort((a,b) => a.gen - b.gen);
+
+            grid.innerHTML = '';
+            if(arr.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-500 font-serif italic">No ancestors found matching "${query}".</div>`;
+                return;
+            }
+
+            arr.forEach(m => {
+                const cStyle = m.house !== undefined && m.house !== "all" ? houseColors[m.house] : houseColors[4];
+                grid.innerHTML += `
+                    <div onclick="renderFocusNode('${m.id}'); switchTab('explorer');" class="bg-navy-800 hover:bg-slate-800 border border-slate-700 hover:border-nd-cyan p-5 cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm transition-all">
+                        <div class="absolute top-0 left-0 w-full h-1 ${cStyle.bg} border-b ${cStyle.border}"></div>
+                        <div class="flex justify-between items-start mb-3 border-b border-slate-700 pb-3 mt-1">
+                            <h4 class="font-serif font-bold text-lg text-white group-hover:text-nd-cyan transition-colors">${m.name}</h4>
+                            <span class="bg-navy-950 text-slate-300 text-[10px] font-bold px-2 py-0.5 border border-slate-700 rounded uppercase tracking-widest shadow-sm">Gen ${m.gen}</span>
+                        </div>
+                        <div class="text-xs text-slate-400 font-medium space-y-1.5 opacity-90">
+                            <p class="flex justify-between"><span>Ubaba:</span> <span class="text-slate-200">${m.father || 'Unknown'}</span></p>
+                            <p class="flex justify-between"><span>Umama:</span> <span class="text-slate-200">${m.mother ? m.mother.split('(')[0] : 'Unknown'}</span></p>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        /* Notes Management */
+        function saveActiveNote() {
+            if (currentActiveDossierId) {
+                const noteText = document.getElementById('modal-note-area').value;
+                localStorage.setItem(`note_${currentActiveDossierId}`, noteText);
+                
+                const indicator = document.getElementById('save-indicator');
+                if (indicator) {
+                    clearTimeout(window.saveTimeout);
+                    indicator.classList.remove('save-indicator');
+                    indicator.style.opacity = '1';
+                    
+                    window.saveTimeout = setTimeout(() => {
+                        indicator.classList.add('save-indicator');
+                    }, 500);
+                }
+            }
+        }
+
+        function clearActiveNote() {
+            if (currentActiveDossierId) {
+                document.getElementById('modal-note-area').value = '';
+                localStorage.removeItem(`note_${currentActiveDossierId}`);
+            }
+        }
+    </script>
+</body>
+</html>
