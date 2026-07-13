@@ -94,13 +94,25 @@
             content: ''; position: absolute; top: -28px; left: 15%; right: 15%; height: 2px; 
             background: linear-gradient(to right, transparent, rgba(147, 197, 253, 0.4), transparent); 
         }
-        
-        @keyframes fadeOut {
-            0% { opacity: 1; }
-            70% { opacity: 1; }
-            100% { opacity: 0; }
+
+        .spouse-card[aria-expanded="true"] {
+            background: rgba(212, 175, 55, 0.12);
+            border-color: rgba(212, 175, 55, 0.55);
+            box-shadow: 0 14px 35px -16px rgba(212, 175, 55, 0.65);
+            transform: translateY(-4px);
         }
-        .save-indicator { animation: fadeOut 2s forwards; }
+
+        .spouse-card[aria-expanded="true"] .spouse-icon {
+            background: rgba(212, 175, 55, 0.18);
+            border-color: rgba(212, 175, 55, 0.5);
+            color: #D4AF37;
+        }
+
+        .spouse-card[aria-expanded="true"] .spouse-chevron {
+            color: #D4AF37;
+            transform: rotate(180deg);
+        }
+        
     </style>
 </head>
 <body class="font-sans min-h-screen flex flex-col antialiased selection:bg-brand-gold selection:text-brand-deepBlue relative overflow-x-hidden">
@@ -394,9 +406,6 @@
             "rose": { id: "rose", name: "Rose", gen: 3, father: "philemon", mother: "Ma Nyembezi", house: "house4" }, "hopewell": { id: "hopewell", name: "Hopewell", gen: 3, father: "philemon", mother: "MaSibanda", house: "house4" }, "irine": { id: "irine", name: "Irine", gen: 3, father: "philemon", mother: "MaSibanda", house: "house4" }, "charm": { id: "charm", name: "Charm", gen: 3, father: "philemon", mother: "MaSibanda", house: "house4" }, "thembinkosi": { id: "thembinkosi", name: "Thembinkosi", gen: 3, father: "philemon", mother: "MaSibanda", house: "house4" }, "doughton": { id: "doughton", name: "Doughton", gen: 3, father: "philemon", mother: "MaSibanda", house: "house4" }, "danford": { id: "danford", name: "Danford", gen: 3, father: "philemon", mother: "MaSibanda", house: "house4" }, "brighton": { id: "brighton", name: "Brighton", gen: 3, father: "philemon", mother: "MaDube", house: "house4" }, "simangaliphi": { id: "simangaliphi", name: "Simangaliphi", gen: 3, father: "philemon", mother: "MaDube", house: "house4" }, "silindelumusa": { id: "silindelumusa", name: "Silindelumusa", gen: 3, father: "philemon", mother: "MaDube", house: "house4" }, "sikhathele": { id: "sikhathele", name: "Sikhathele", gen: 3, father: "philemon", mother: "MaDube", house: "house4" }, "ntombizodwa": { id: "ntombizodwa", name: "Ntombizodwa", gen: 3, father: "philemon", mother: "MaDube", house: "house4" }, "xolani": { id: "xolani", name: "Xolani", gen: 3, father: "philemon", mother: "MaDube", house: "house4" }, "cleopas": { id: "cleopas", name: "Cleopas", gen: 3, father: "philemon", mother: "MaDube", house: "house4" }, "last": { id: "last", name: "Last", gen: 3, father: "philemon", mother: "MaDube", house: "house4" }, "painford": { id: "painford", name: "Painford", gen: 3, father: "philemon", mother: "MaDube", house: "house4" }, "onias": { id: "onias", name: "Onias", gen: 3, father: "philemon", mother: "MaNyathi", house: "house4" }, "bowen": { id: "bowen", name: "Bowen", gen: 3, father: "philemon", mother: "MaNyathi", house: "house4" }, "tholakele": { id: "tholakele", name: "Tholakele", gen: 3, father: "philemon", mother: "MaNyathi", house: "house4" }, "siduduzile": { id: "siduduzile", name: "Siduduzile", gen: 3, father: "philemon", mother: "MaNyathi", house: "house4" }, "sithulisiwe": { id: "sithulisiwe", name: "Sithulisiwe", gen: 3, father: "philemon", mother: "MaNyathi", house: "house4" }, "obvious": { id: "obvious", name: "Obvious", gen: 3, father: "philemon", mother: "MaNyathi", house: "house4" }, "mkhululi": { id: "mkhululi", name: "Mkhululi", gen: 3, father: "philemon", mother: "Ma Moyo", house: "house4" }
         };
 
-        let currentActiveDossierId = null;
-        let saveTimeout;
-
         /* INITIALIZATION */
         window.onload = function() {
             renderFocusNode('mtalisi');
@@ -421,8 +430,6 @@
             const canvas = document.getElementById('focus-canvas');
             const member = familyData[memberId];
             if(!member) return;
-
-            currentActiveDossierId = memberId;
 
             canvas.classList.remove('fade-in');
             canvas.classList.add('fade-out');
@@ -450,74 +457,82 @@
                     `;
                 }
 
-                // B. FOCUS TIER (SELF + NOTES)
+                // B. FOCUS TIER
                 html += `<div class="flex flex-col items-center relative z-20 mt-4 w-full">`;
                 html += `<div class="flex flex-col md:flex-row items-center justify-center gap-6 ${member.father ? 'conn-line-up' : ''} ${member.wives ? 'conn-line-down' : ''} w-full max-w-4xl">`;
                 
                 const genRoman = member.gen === 1 ? 'I' : member.gen === 2 ? 'II' : 'III';
-                const savedNote = localStorage.getItem(`note_${memberId}`) || '';
 
                 html += `
-                    <div class="bg-brand-deepBlue/80 backdrop-blur-md border border-blue-400/30 rounded-[2rem] shadow-2xl w-full max-w-lg overflow-hidden transform scale-105 z-30">
-                        <div class="p-8 text-center border-b border-blue-400/20 relative overflow-hidden">
+                    <div class="bg-brand-deepBlue/80 backdrop-blur-md border border-blue-400/30 rounded-[2rem] shadow-2xl w-full max-w-md overflow-hidden transform scale-105 z-30">
+                        <div class="p-8 md:p-10 text-center relative overflow-hidden">
                             <div class="absolute -top-10 -right-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl"></div>
                             <span class="text-[10px] font-medium uppercase tracking-[0.3em] text-blue-300 mb-2 block relative z-10">Isizukulwane ${genRoman}</span>
                             <h2 class="font-serif text-3xl md:text-4xl font-light mb-1 text-white relative z-10">${member.name}</h2>
                             ${member.id === 'mtalisi' ? `<p class="text-brand-gold/80 text-xs italic font-serif mt-2 relative z-10">The Founding Patriarch</p>` : ''}
                         </div>
-                        
-                        <div class="bg-black/40 p-6 relative">
-                            <div class="flex justify-between items-center mb-3">
-                                <label class="text-xs font-medium uppercase tracking-widest text-blue-200">Amarekhodi <span class="text-[10px] text-blue-400/60 normal-case">(Personal Ledger)</span></label>
-                                <span class="text-[10px] text-brand-gold/60 italic font-serif">Browser Storage</span>
-                            </div>
-                            
-                            <textarea id="modal-note-area" oninput="saveActiveNote()" placeholder="Enter deceased location, significant dates, or memories here..." class="w-full h-28 bg-blue-900/20 border border-blue-400/20 rounded-xl p-4 text-sm font-serif text-blue-50 focus:ring-1 focus:ring-brand-gold/60 focus:border-brand-gold/60 focus:outline-none resize-none shadow-inner placeholder-blue-300/40 leading-relaxed">${savedNote}</textarea>
-                            
-                            <div class="flex justify-between items-center mt-2">
-                                <span id="save-indicator" class="text-[10px] text-green-400 italic opacity-0 transition-opacity">Saved automatically</span>
-                                <button onclick="clearActiveNote()" class="text-[10px] text-blue-400 hover:text-red-400 font-medium transition-colors uppercase tracking-wider">Erase Ledger</button>
-                            </div>
-                        </div>
                     </div>
                 `;
                 html += `</div></div>`;
 
-                // C. CHILDREN TIER (Categorized by House)
+                // C. SPOUSES + COLLAPSED CHILDREN TIER
                 if (member.wives && member.wives.length > 0) {
                     html += `<div class="flex flex-col items-center w-full mt-16 relative z-10">`;
-                    html += `<h3 class="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-300 mb-8 border-b border-blue-400/30 pb-2">Indlu <span class="text-blue-300/50">(Lineage by House)</span></h3>`;
-                    html += `<div class="flex flex-col gap-8 w-full max-w-5xl">`;
+                    html += `<h3 class="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-300 mb-3 border-b border-blue-400/30 pb-2">Abafazi <span class="text-blue-300/50">(Wives)</span></h3>`;
+                    html += `<p class="text-xs text-blue-200/60 font-serif italic mb-7">Select a wife to view her children</p>`;
+                    html += `<div class="w-full max-w-6xl overflow-x-auto px-1 pt-2 pb-6">`;
+                    html += `<div class="flex flex-nowrap w-max min-w-full justify-start md:justify-center gap-4">`;
                     
                     member.wives.forEach((w, wIdx) => {
                         const wifeId = `wife-${member.id}-${wIdx}`;
+                        const wifeButtonId = `button-${wifeId}`;
                         html += `
-                            <div class="glass-card rounded-[2rem] p-6 md:p-8">
-                                <div onclick="toggleHouse('${wifeId}')" class="bg-blue-900/20 border border-blue-400/20 hover:bg-blue-800/30 rounded-2xl px-6 py-4 flex items-center justify-between cursor-pointer transition-all mb-8 w-full md:w-max mx-auto group">
-                                    <div class="flex items-center gap-4">
-                                        <div class="w-10 h-10 rounded-full bg-brand-deepBlue text-blue-300 border border-blue-400/30 flex items-center justify-center text-lg shadow-inner group-hover:scale-110 group-hover:bg-brand-gold/20 group-hover:text-brand-gold group-hover:border-brand-gold/40 transition-all">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
-                                        </div>
-                                        <div class="text-left">
-                                            <span class="text-[10px] uppercase tracking-widest text-blue-300/70 font-medium block mb-0.5">Umama / Spouse</span>
-                                            <span class="font-serif font-light text-white text-xl">${w.name}</span>
-                                        </div>
-                                    </div>
-                                    <svg id="icon-${wifeId}" class="ml-8 w-5 h-5 text-blue-400 group-hover:text-brand-gold transition-transform transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"></path></svg>
-                                </div>
+                            <button
+                                id="${wifeButtonId}"
+                                type="button"
+                                aria-expanded="false"
+                                aria-controls="${wifeId}"
+                                onclick="toggleHouse('${wifeId}', '${member.id}', '${wifeButtonId}')"
+                                class="spouse-card glass-card rounded-2xl px-5 py-4 min-w-[220px] max-w-[260px] flex items-center justify-between gap-4 text-left cursor-pointer group"
+                            >
+                                <span class="flex items-center gap-3 min-w-0">
+                                    <span class="spouse-icon w-10 h-10 shrink-0 rounded-full bg-brand-deepBlue text-blue-300 border border-blue-400/30 flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:bg-brand-gold/20 group-hover:text-brand-gold group-hover:border-brand-gold/40 transition-all">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                                    </span>
+                                    <span class="min-w-0">
+                                        <span class="text-[9px] uppercase tracking-widest text-blue-300/70 font-medium block mb-1">Umama / Wife</span>
+                                        <span class="font-serif font-light text-white text-lg leading-tight block">${w.name}</span>
+                                    </span>
+                                </span>
+                                <svg class="spouse-chevron shrink-0 w-5 h-5 text-blue-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        `;
+                    });
+                    html += `</div></div>`;
 
-                                <div id="${wifeId}" class="flex flex-wrap justify-center gap-4 transition-all">
+                    html += `<div class="w-full max-w-5xl mt-2">`;
+                    member.wives.forEach((w, wIdx) => {
+                        const wifeId = `wife-${member.id}-${wIdx}`;
+                        const wifeButtonId = `button-${wifeId}`;
+                        html += `
+                            <section id="${wifeId}" data-house-owner="${member.id}" aria-labelledby="${wifeButtonId}" class="hidden glass-card rounded-[2rem] p-6 md:p-8">
+                                <div class="text-center mb-7">
+                                    <span class="text-[10px] uppercase tracking-[0.25em] text-blue-300/70 font-medium block mb-1">Children of ${member.name} and</span>
+                                    <h4 class="font-serif font-light text-white text-2xl">${w.name}</h4>
+                                </div>
+                                <div class="flex flex-wrap justify-center gap-4">
                         `;
                         if(w.children.length === 0) {
-                             html += `<span class="text-sm text-blue-300/50 italic font-serif">No descendants recorded in this ledger.</span>`;
+                             html += `<span class="text-sm text-blue-300/50 italic font-serif">No descendants recorded in this family tree.</span>`;
                         } else {
                             w.children.forEach(cId => {
                                 html += createNodeCard(cId, 'Child');
                             });
                         }
-                        html += `</div></div>`;
+                        html += `</div></section>`;
                     });
-                    html += `</div></div>`;
+                    html += `</div>`;
+                    html += `</div>`;
                 }
 
                 if (!member.wives && member.gen === 3) {
@@ -548,15 +563,20 @@
             `;
         }
 
-        function toggleHouse(id) {
-            const el = document.getElementById(id);
-            const icon = document.getElementById(`icon-${id}`);
-            if (el.classList.contains('hidden')) {
-                el.classList.remove('hidden');
-                icon.classList.add('rotate-180');
-            } else {
-                el.classList.add('hidden');
-                icon.classList.remove('rotate-180');
+        function toggleHouse(id, ownerId, buttonId) {
+            const selectedHouse = document.getElementById(id);
+            const selectedButton = document.getElementById(buttonId);
+            const shouldOpen = selectedHouse.classList.contains('hidden');
+
+            document.querySelectorAll(`[data-house-owner="${ownerId}"]`).forEach(house => {
+                house.classList.add('hidden');
+                const button = document.getElementById(`button-${house.id}`);
+                if (button) button.setAttribute('aria-expanded', 'false');
+            });
+
+            if (shouldOpen) {
+                selectedHouse.classList.remove('hidden');
+                selectedButton.setAttribute('aria-expanded', 'true');
             }
         }
 
@@ -597,32 +617,6 @@
             });
         }
 
-        /* Notes Management */
-        function saveActiveNote() {
-            if (currentActiveDossierId) {
-                const noteText = document.getElementById('modal-note-area').value;
-                localStorage.setItem(`note_${currentActiveDossierId}`, noteText);
-                
-                // Show visual feedback
-                const indicator = document.getElementById('save-indicator');
-                if (indicator) {
-                    clearTimeout(saveTimeout);
-                    indicator.classList.remove('save-indicator');
-                    indicator.style.opacity = '1';
-                    
-                    saveTimeout = setTimeout(() => {
-                        indicator.classList.add('save-indicator');
-                    }, 500);
-                }
-            }
-        }
-
-        function clearActiveNote() {
-            if (currentActiveDossierId) {
-                document.getElementById('modal-note-area').value = '';
-                localStorage.removeItem(`note_${currentActiveDossierId}`);
-            }
-        }
     </script>
 </body>
 </html>
