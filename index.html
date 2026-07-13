@@ -18,19 +18,29 @@
     <!-- Premium Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&amp;family=Nunito+Sans:opsz,wght@6..12,400;6..12,500;6..12,600;6..12,700&amp;display=swap" rel="stylesheet">
     
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { serif: ['Playfair Display', 'serif'], sans: ['Outfit', 'sans-serif'] },
+                    fontFamily: { serif: ['Lora', 'Georgia', 'serif'], sans: ['Nunito Sans', 'Arial', 'sans-serif'] },
                     colors: {
                         brand: {
-                            gold: '#D4AF37',
-                            accent: '#FBBF24',
-                            deepBlue: '#0A1128',
-                            royalBlue: '#16425B'
+                            gold: '#E6B85C',
+                            accent: '#F2CC72',
+                            red: '#CE3A32',
+                            stone: '#D8C39A',
+                            deepBlue: '#184139',
+                            royalBlue: '#2C655A'
+                        },
+                        blue: {
+                            200: '#EDF5F1',
+                            300: '#C3DDD5',
+                            400: '#8FC0B4',
+                            500: '#4F9185',
+                            800: '#245047',
+                            900: '#183D36'
                         }
                     }
                 }
@@ -39,107 +49,428 @@
     </script>
     <style>
         body { 
-            /* Rich, deep dimensional blue gradient - NOT flat */
-            background: radial-gradient(circle at 15% 50%, #16425B, #0A1128 40%, #030712 100%);
+            background:
+                radial-gradient(circle at 12% 35%, rgba(91, 169, 151, 0.38), transparent 36%),
+                radial-gradient(circle at 88% 15%, rgba(230, 184, 92, 0.17), transparent 28%),
+                linear-gradient(145deg, #183f38 0%, #102d28 50%, #091b18 100%);
             background-attachment: fixed;
-            color: #F3F4F6;
+            color: #FAF7EF;
+            scroll-behavior: smooth;
+            font-size: 17px;
+            font-weight: 400;
+            line-height: 1.55;
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
+        }
+
+        h1, h2, h3, h4 {
+            text-wrap: balance;
+        }
+
+        .font-serif {
+            letter-spacing: -0.015em;
+        }
+
+        /* Keep family labels comfortably readable on phones and desktops. */
+        [class~="text-[9px]"] {
+            font-size: 0.72rem !important;
+            line-height: 1rem !important;
+        }
+
+        [class~="text-[10px]"] {
+            font-size: 0.78rem !important;
+            line-height: 1.1rem !important;
+        }
+
+        .text-xs {
+            font-size: 0.9rem !important;
+            line-height: 1.35rem !important;
+        }
+
+        .text-sm {
+            font-size: 1rem !important;
+            line-height: 1.55rem !important;
+        }
+
+        .spouse-card .text-lg,
+        .family-node-card .text-lg {
+            font-size: 1.22rem !important;
+            line-height: 1.55rem !important;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            pointer-events: none;
+            opacity: 0.32;
+            background-image:
+                linear-gradient(90deg, rgba(216, 195, 154, 0.09) 1px, transparent 1px),
+                linear-gradient(rgba(216, 195, 154, 0.09) 1px, transparent 1px),
+                linear-gradient(90deg, transparent 49%, rgba(216, 195, 154, 0.06) 50%, transparent 51%);
+            background-size: 68px 32px, 68px 32px, 136px 64px;
+            background-position: 0 0, 0 0, 34px 32px;
         }
         
-        /* Sleek Modern Glassmorphism over Deep Blue */
         .glass-panel {
-            background: rgba(10, 25, 47, 0.35);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(147, 197, 253, 0.15);
-            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            background: linear-gradient(145deg, rgba(33, 76, 67, 0.88), rgba(14, 42, 37, 0.82));
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            border: 1px solid rgba(242, 204, 114, 0.24);
+            box-shadow: 0 24px 48px -18px rgba(0, 0, 0, 0.56), inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
 
         .glass-card {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(250, 247, 239, 0.085);
             backdrop-filter: blur(16px);
-            border: 1px solid rgba(147, 197, 253, 0.1);
+            border: 1px solid rgba(195, 221, 213, 0.23);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .glass-card:hover {
-            background: rgba(255, 255, 255, 0.07);
-            border-color: rgba(212, 175, 55, 0.4); /* Gold hover pop */
-            transform: translateY(-5px);
-            box-shadow: 0 12px 35px -10px rgba(0, 0, 0, 0.5), 0 0 15px -5px rgba(212, 175, 55, 0.2);
+            background: rgba(250, 247, 239, 0.14);
+            border-color: rgba(242, 204, 114, 0.58);
+            transform: translateY(-4px);
+            box-shadow: 0 14px 34px -12px rgba(0, 0, 0, 0.58), 0 0 18px -8px rgba(230, 184, 92, 0.42);
+        }
+
+        .person-card {
+            background: linear-gradient(145deg, rgba(45, 101, 90, 0.96), rgba(24, 65, 57, 0.96));
+            border: 1px solid rgba(242, 204, 114, 0.48);
+            border-top: 3px solid rgba(242, 204, 114, 0.82);
+            box-shadow: 0 22px 45px -20px rgba(0, 0, 0, 0.72), inset 0 -3px 0 rgba(206, 58, 50, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+        }
+
+        .spouse-card {
+            background: linear-gradient(155deg, rgba(250, 247, 239, 0.13), rgba(143, 192, 180, 0.07));
+            border-top: 2px solid rgba(230, 184, 92, 0.52);
+            box-shadow: 0 12px 24px -18px rgba(0, 0, 0, 0.8);
+        }
+
+        .spouse-card:nth-child(even) {
+            border-top-color: rgba(206, 58, 50, 0.72);
+        }
+
+        .family-node-card {
+            background: linear-gradient(145deg, rgba(250, 247, 239, 0.115), rgba(79, 145, 133, 0.08));
+            border-bottom: 2px solid rgba(143, 192, 180, 0.34);
+        }
+
+        .profile-section {
+            background: linear-gradient(145deg, rgba(250, 247, 239, 0.12), rgba(143, 192, 180, 0.07));
+            border: 1px solid rgba(195, 221, 213, 0.28);
+            box-shadow: 0 18px 36px -24px rgba(0, 0, 0, 0.75);
+        }
+
+        .map-placeholder {
+            background-color: rgba(24, 65, 57, 0.62);
+            background-image:
+                linear-gradient(32deg, transparent 46%, rgba(195, 221, 213, 0.09) 47%, rgba(195, 221, 213, 0.09) 50%, transparent 51%),
+                linear-gradient(122deg, transparent 46%, rgba(230, 184, 92, 0.08) 47%, rgba(230, 184, 92, 0.08) 50%, transparent 51%);
+            background-size: 72px 72px;
+        }
+
+        .heritage-scene {
+            position: fixed;
+            right: -3vw;
+            bottom: 0;
+            width: min(760px, 72vw);
+            height: 430px;
+            z-index: 0;
+            opacity: 0.42;
+            pointer-events: none;
+            filter: drop-shadow(0 -12px 35px rgba(230, 184, 92, 0.08));
+        }
+
+        .heritage-sun {
+            position: absolute;
+            right: 12%;
+            bottom: 150px;
+            width: 230px;
+            height: 230px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(242, 204, 114, 0.64), rgba(206, 58, 50, 0.16) 54%, transparent 72%);
+        }
+
+        .great-zimbabwe-wall,
+        .great-zimbabwe-tower {
+            background-color: #D8C39A;
+            background-image:
+                linear-gradient(90deg, rgba(24, 65, 57, 0.34) 1px, transparent 1px),
+                linear-gradient(rgba(24, 65, 57, 0.34) 1px, transparent 1px);
+            background-size: 28px 18px;
+            box-shadow: inset 0 10px 22px rgba(250, 247, 239, 0.18), 0 -8px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .great-zimbabwe-wall {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 185px;
+            clip-path: polygon(0 100%, 0 42%, 8% 37%, 15% 43%, 24% 34%, 33% 41%, 44% 29%, 54% 36%, 64% 25%, 72% 33%, 82% 28%, 91% 36%, 100% 30%, 100% 100%);
+        }
+
+        .great-zimbabwe-wall::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 64px;
+            height: 18px;
+            background: repeating-linear-gradient(135deg, rgba(206, 58, 50, 0.65) 0 8px, rgba(242, 204, 114, 0.7) 8px 16px, rgba(32, 134, 74, 0.65) 16px 24px, rgba(16, 21, 18, 0.7) 24px 32px);
+        }
+
+        .great-zimbabwe-tower {
+            position: absolute;
+            right: 25%;
+            bottom: 100px;
+            width: 130px;
+            height: 260px;
+            clip-path: polygon(38% 0, 62% 0, 86% 100%, 14% 100%);
+            border-radius: 50% 50% 8px 8px;
+        }
+
+        .great-zimbabwe-tower::after {
+            content: '';
+            position: absolute;
+            left: 44%;
+            bottom: 0;
+            width: 12%;
+            height: 30%;
+            border-radius: 12px 12px 0 0;
+            background: rgba(9, 27, 24, 0.86);
+        }
+
+        .heritage-scene-label {
+            position: absolute;
+            right: 7%;
+            bottom: 24px;
+            z-index: 2;
+            color: #FAF7EF;
+            font-family: 'Lora', Georgia, serif;
+            font-size: clamp(1rem, 2.4vw, 1.55rem);
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
+        }
+
+        .heritage-panel {
+            position: relative;
+        }
+
+        .heritage-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 8%;
+            right: 8%;
+            height: 10px;
+            border-radius: 0 0 10px 10px;
+            background: repeating-linear-gradient(135deg, #CE3A32 0 9px, #F2CC72 9px 18px, #20864A 18px 27px, #101512 27px 36px);
+            opacity: 0.88;
+            z-index: 5;
+        }
+
+        .pride-banner {
+            position: relative;
+            width: min(920px, 100%);
+            margin-top: 1.25rem;
+            overflow: hidden;
+            border: 1px solid rgba(242, 204, 114, 0.6);
+            background:
+                radial-gradient(circle at 88% 10%, rgba(206, 58, 50, 0.32), transparent 31%),
+                linear-gradient(115deg, rgba(24, 91, 66, 0.98), rgba(20, 67, 57, 0.97) 48%, rgba(77, 45, 31, 0.96));
+            box-shadow: 0 22px 45px -24px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+        }
+
+        .pride-banner::before {
+            content: '';
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 8px;
+            background: linear-gradient(90deg, #20864A 0 25%, #F2C94C 25% 45%, #CE3A32 45% 65%, #101512 65% 80%, #FAF7EF 80% 90%, #20864A 90% 100%);
+        }
+
+        .pride-banner::after {
+            content: 'ZIMBABWE';
+            position: absolute;
+            right: -0.03em;
+            bottom: -0.28em;
+            color: rgba(250, 247, 239, 0.075);
+            font-family: 'Nunito Sans', Arial, sans-serif;
+            font-size: clamp(3.5rem, 9vw, 7.5rem);
+            line-height: 1;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            pointer-events: none;
+        }
+
+        .pride-monument {
+            position: relative;
+            width: 150px;
+            height: 118px;
+            flex: 0 0 150px;
+        }
+
+        .pride-monument-wall,
+        .pride-monument-tower {
+            position: absolute;
+            background-color: #D8C39A;
+            background-image:
+                linear-gradient(90deg, rgba(24, 65, 57, 0.34) 1px, transparent 1px),
+                linear-gradient(rgba(24, 65, 57, 0.34) 1px, transparent 1px);
+            background-size: 16px 11px;
+            filter: drop-shadow(0 5px 8px rgba(0, 0, 0, 0.25));
+        }
+
+        .pride-monument-wall {
+            left: 0;
+            right: 0;
+            bottom: 4px;
+            height: 58px;
+            clip-path: polygon(0 100%, 0 35%, 14% 30%, 26% 42%, 39% 27%, 55% 38%, 68% 20%, 82% 34%, 100% 25%, 100% 100%);
+        }
+
+        .pride-monument-tower {
+            right: 25px;
+            bottom: 37px;
+            width: 48px;
+            height: 80px;
+            clip-path: polygon(38% 0, 62% 0, 88% 100%, 12% 100%);
+            border-radius: 50% 50% 0 0;
+        }
+
+        .pride-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.38rem 0.8rem;
+            border-radius: 999px;
+            border: 1px solid rgba(242, 204, 114, 0.5);
+            background: rgba(242, 204, 114, 0.12);
+            color: #F2CC72;
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .pride-badge::before {
+            content: '';
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #CE3A32;
+            box-shadow: 13px 0 0 #F2C94C, 26px 0 0 #20864A;
+            margin-right: 26px;
         }
 
         /* Minimalist Scrollbars */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(147, 197, 253, 0.2); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(212, 175, 55, 0.6); }
+        ::-webkit-scrollbar-thumb { background: rgba(114, 166, 154, 0.32); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(230, 184, 92, 0.65); }
         
         /* Canvas Animations */
         .explorer-canvas { transition: opacity 0.5s ease, transform 0.5s ease; }
         .fade-out { opacity: 0; transform: scale(0.98); }
         .fade-in { opacity: 1; transform: scale(1); }
 
-        /* Sleek Connector Lines - Tinted Blue/Gold */
         .conn-line-down::after { 
             content: ''; position: absolute; bottom: -28px; left: 50%; width: 2px; height: 28px; 
-            background: linear-gradient(to bottom, rgba(147, 197, 253, 0.4), transparent); 
+            background: linear-gradient(to bottom, rgba(230, 184, 92, 0.55), transparent); 
             transform: translateX(-50%); 
         }
         .conn-line-up::before { 
             content: ''; position: absolute; top: -28px; left: 50%; width: 2px; height: 28px; 
-            background: linear-gradient(to top, rgba(147, 197, 253, 0.4), transparent); 
+            background: linear-gradient(to top, rgba(230, 184, 92, 0.55), transparent); 
             transform: translateX(-50%); 
         }
         .conn-bracket::before { 
             content: ''; position: absolute; top: -28px; left: 15%; right: 15%; height: 2px; 
-            background: linear-gradient(to right, transparent, rgba(147, 197, 253, 0.4), transparent); 
+            background: linear-gradient(to right, transparent, rgba(230, 184, 92, 0.48), transparent); 
         }
 
         .spouse-card[aria-expanded="true"] {
-            background: rgba(212, 175, 55, 0.12);
-            border-color: rgba(212, 175, 55, 0.55);
-            box-shadow: 0 14px 35px -16px rgba(212, 175, 55, 0.65);
+            background: linear-gradient(145deg, rgba(230, 184, 92, 0.17), rgba(201, 111, 66, 0.08));
+            border-color: rgba(230, 184, 92, 0.62);
+            box-shadow: 0 14px 35px -16px rgba(230, 184, 92, 0.72);
             transform: translateY(-4px);
         }
 
         .spouse-card[aria-expanded="true"] .spouse-icon {
-            background: rgba(212, 175, 55, 0.18);
-            border-color: rgba(212, 175, 55, 0.5);
-            color: #D4AF37;
+            background: #E6B85C;
+            border-color: #F2CC72;
+            color: #184139;
         }
 
         .spouse-card[aria-expanded="true"] .spouse-chevron {
-            color: #D4AF37;
+            color: #E6B85C;
             transform: rotate(180deg);
+        }
+
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible {
+            outline: 2px solid #F2CC72;
+            outline-offset: 3px;
+        }
+
+        @media (max-width: 640px) {
+            .glass-panel { backdrop-filter: blur(16px); }
+            .explorer-canvas { gap: 2rem; }
+            .heritage-scene {
+                width: 105vw;
+                height: 300px;
+                opacity: 0.28;
+            }
+            .great-zimbabwe-tower {
+                width: 90px;
+                height: 190px;
+            }
+            .great-zimbabwe-wall {
+                height: 135px;
+            }
+            .pride-monument {
+                width: 118px;
+                height: 96px;
+                flex-basis: 118px;
+            }
+            .pride-monument-tower {
+                right: 19px;
+                height: 66px;
+            }
         }
         
     </style>
 </head>
 <body class="font-sans min-h-screen flex flex-col antialiased selection:bg-brand-gold selection:text-brand-deepBlue relative overflow-x-hidden">
 
-    <!-- NDEBELE GEOMETRIC BANNER (Inspired by IMG_7223.jpeg) -->
+    <!-- Ndebele geometric heritage banner -->
     <div class="w-full h-10 sticky top-0 z-50 shadow-2xl">
-        <svg width="100%" height="100%" preserveAspectRatio="none">
+        <svg width="100%" height="100%" preserveAspectRatio="none" aria-hidden="true">
             <defs>
                 <pattern id="ndebele-band" x="0" y="0" width="160" height="40" patternUnits="userSpaceOnUse">
-                    <!-- Base White -->
                     <rect width="160" height="40" fill="#F5F5F5" />
-                    <!-- Top/Bottom Heavy Black Borders -->
                     <rect x="0" y="0" width="160" height="4" fill="#0A0A0A" />
                     <rect x="0" y="36" width="160" height="4" fill="#0A0A0A" />
-                    
-                    <!-- Segment 1: Bold Diamond -->
+
                     <rect x="0" y="4" width="53.3" height="32" fill="none" stroke="#0A0A0A" stroke-width="3" />
                     <polygon points="26.6,4 53.3,20 26.6,36 0,20" fill="#E32636" stroke="#0A0A0A" stroke-width="2" />
                     <polygon points="26.6,10 42,20 26.6,30 11.3,20" fill="#FFD700" stroke="#0A0A0A" stroke-width="2" />
 
-                    <!-- Segment 2: Opposing Triangles -->
                     <rect x="53.3" y="4" width="53.3" height="32" fill="#005BA6" stroke="#0A0A0A" stroke-width="3" />
                     <polygon points="53.3,4 80,20 53.3,36" fill="#F5F5F5" stroke="#0A0A0A" stroke-width="2" />
                     <polygon points="106.6,4 80,20 106.6,36" fill="#007A33" stroke="#0A0A0A" stroke-width="2" />
                     <rect x="75" y="16" width="10" height="8" fill="#E32636" />
 
-                    <!-- Segment 3: Bowtie / Hourglass -->
                     <rect x="106.6" y="4" width="53.4" height="32" fill="none" stroke="#0A0A0A" stroke-width="3" />
                     <polygon points="106.6,4 160,4 133.3,20" fill="#005BA6" stroke="#0A0A0A" stroke-width="2" />
                     <polygon points="106.6,36 160,36 133.3,20" fill="#FFD700" stroke="#0A0A0A" stroke-width="2" />
@@ -150,14 +481,22 @@
         </svg>
     </div>
 
+    <!-- Great Zimbabwe-inspired stone landscape -->
+    <div class="heritage-scene" aria-hidden="true">
+        <div class="heritage-sun"></div>
+        <div class="great-zimbabwe-tower"></div>
+        <div class="great-zimbabwe-wall"></div>
+        <div class="heritage-scene-label">Great Zimbabwe</div>
+    </div>
+
     <!-- Constellation / Glowing Network Background -->
-    <canvas id="bg-canvas" class="fixed inset-0 w-full h-full z-[-1] pointer-events-none opacity-60"></canvas>
+    <canvas id="bg-canvas" class="fixed inset-0 w-full h-full z-[-1] pointer-events-none opacity-30"></canvas>
 
     <!-- Header -->
-    <header class="pt-10 pb-6 px-6 relative z-10 flex flex-col items-center justify-center max-w-7xl mx-auto w-full gap-4 text-center">
+    <header class="pt-6 pb-4 px-6 relative z-10 flex flex-col items-center justify-center max-w-7xl mx-auto w-full gap-2 text-center">
         
         <!-- PURE CSS/SVG ARTWORK: THE WARRIOR -->
-        <div class="relative w-48 h-64 mb-2 drop-shadow-2xl hover:scale-105 transition-transform duration-700">
+        <div class="relative w-32 h-44 md:w-40 md:h-52 drop-shadow-2xl hover:scale-105 transition-transform duration-700">
             <!-- Subtle blue glow behind the art -->
             <div class="absolute inset-0 bg-blue-400/20 blur-3xl rounded-full"></div>
             
@@ -229,13 +568,27 @@
         </div>
 
         <div class="flex flex-col items-center">
-            <span class="text-blue-300 text-[10px] font-bold tracking-[0.4em] uppercase mb-2 block">Isihlahla Somndeni &middot; The Living Lineage</span>
-            <h1 class="text-5xl md:text-6xl font-serif font-light tracking-tight text-white drop-shadow-lg">Inzalo KaMtalisi</h1>
-            <p class="text-blue-200/70 text-sm md:text-base font-serif italic mt-4 tracking-widest">
+            <span class="text-blue-300 text-[10px] font-bold tracking-[0.32em] uppercase mb-2 block">Isihlahla Somndeni &middot; Zimbabwean Family Heritage</span>
+            <h1 class="text-4xl md:text-5xl font-serif font-light tracking-tight text-white drop-shadow-lg">Inzalo KaMtalisi</h1>
+            <p class="text-blue-200/70 text-xs md:text-sm font-serif italic mt-2 tracking-widest">
                 "Umuntu ngumuntu ngabantu"
                 <span class="text-[9px] md:text-[10px] uppercase font-sans text-brand-gold block mt-1.5 not-italic tracking-[0.2em]">A person is a person through other people</span>
             </p>
         </div>
+
+        <section class="pride-banner rounded-[2rem] px-5 py-6 md:px-8 md:py-7 text-left" aria-label="Proud Zimbabwean family heritage">
+            <div class="relative z-10 flex flex-col sm:flex-row items-center gap-5 md:gap-7">
+                <div class="pride-monument" aria-hidden="true">
+                    <div class="pride-monument-tower"></div>
+                    <div class="pride-monument-wall"></div>
+                </div>
+                <div class="flex-1 text-center sm:text-left">
+                    <span class="pride-badge">Proudly Zimbabwean</span>
+                    <h2 class="font-serif text-2xl md:text-3xl text-white mt-3">Our roots. Our story. Our legacy.</h2>
+                    <p class="text-sm text-blue-200/80 mt-2">Celebrating the Mtalisi family and preserving every generation that carries the name forward.</p>
+                </div>
+            </div>
+        </section>
     </header>
 
     <!-- Floating Navigation -->
@@ -243,11 +596,11 @@
         <div class="glass-panel rounded-full p-2 flex gap-2 pointer-events-auto overflow-x-auto max-w-full">
             <button onclick="switchTab('explorer')" id="tab-explorer" class="nav-btn bg-blue-500/20 text-white border border-blue-400/30 px-6 py-2.5 rounded-full text-sm font-medium transition-all shadow-lg whitespace-nowrap flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                Tree of Ancestors
+                Family Tree
             </button>
             <button onclick="switchTab('directory')" id="tab-directory" class="nav-btn text-blue-200/60 hover:text-white hover:bg-white/5 border border-transparent px-6 py-2.5 rounded-full text-sm font-medium transition-all whitespace-nowrap flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                Family Ledger
+                Find a Relative
             </button>
         </div>
     </div>
@@ -257,18 +610,18 @@
 
         <!-- TAB 1: THE FOCUS EXPLORER -->
         <div id="view-explorer" class="tab-view flex-grow flex flex-col">
-            <div class="glass-panel rounded-[2rem] p-6 md:p-12 flex-grow flex flex-col relative overflow-hidden">
+            <div class="heritage-panel glass-panel rounded-[2rem] p-4 sm:p-6 md:p-10 flex-grow flex flex-col relative overflow-hidden">
                 
                 <!-- Quick Navigation Bar -->
-                <div class="absolute top-6 left-6 right-6 flex justify-between items-center z-20">
-                    <button onclick="renderFocusNode('mtalisi')" class="text-[10px] font-bold uppercase tracking-widest text-blue-200/70 hover:text-white glass-card px-5 py-2.5 rounded-full transition-colors flex items-center gap-2">
-                        ← Return to Patriarch
+                <div class="absolute top-4 sm:top-6 left-4 sm:left-6 right-4 sm:right-6 flex justify-between items-center z-20">
+                    <button id="home-button" onclick="renderFocusNode('mtalisi')" class="text-[10px] font-bold uppercase tracking-widest text-blue-200/70 hover:text-white glass-card px-4 sm:px-5 py-2.5 rounded-full transition-colors flex items-center gap-2">
+                        ← Back to Mtalisi
                     </button>
-                    <div class="text-[10px] uppercase tracking-widest text-brand-gold border border-brand-gold/30 bg-brand-gold/10 px-4 py-1.5 rounded-full font-medium hidden md:block">Interactive Mode</div>
+                    <div id="mode-hint" class="text-[10px] tracking-wider text-brand-gold border border-brand-gold/30 bg-brand-gold/10 px-4 py-1.5 rounded-full font-medium hidden md:block">Choose a wife, then a child</div>
                 </div>
 
                 <!-- DYNAMIC CANVAS -->
-                <div id="focus-canvas" class="explorer-canvas fade-in flex-grow flex flex-col items-center justify-center mt-16 gap-12 w-full">
+                <div id="focus-canvas" class="explorer-canvas fade-in flex-grow flex flex-col items-center justify-center mt-14 sm:mt-16 gap-10 md:gap-12 w-full">
                     <!-- Javascript will inject the nodes here -->
                 </div>
                 
@@ -277,11 +630,11 @@
 
         <!-- TAB 2: COMPLETE REGISTRY -->
         <div id="view-directory" class="tab-view hidden flex-grow">
-            <div class="glass-panel rounded-[2rem] p-6 md:p-10 min-h-[700px]">
+            <div class="heritage-panel glass-panel rounded-[2rem] p-6 md:p-10 min-h-[700px] overflow-hidden">
                 <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-8 border-b border-blue-400/20 pb-6">
                     <div>
-                        <h2 class="text-3xl font-serif font-light text-white">The Great Ledger</h2>
-                        <p class="text-sm text-blue-200/70 mt-1">Search the complete ancestral records.</p>
+                        <h2 class="text-3xl font-serif font-light text-white">Family Directory</h2>
+                        <p class="text-sm text-blue-200/70 mt-1">Search by name, parent, or generation.</p>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
                         <div class="relative w-full sm:w-64">
@@ -328,7 +681,7 @@
 
             const material = new THREE.PointsMaterial({
                 size: 1.5,
-                color: 0x93c5fd, // Light blue glowing nodes
+                color: 0xc3ddd5,
                 transparent: true,
                 opacity: 0.8,
                 blending: THREE.AdditiveBlending
@@ -336,9 +689,9 @@
 
             // Lines connecting the points
             const lineMaterial = new THREE.LineBasicMaterial({
-                color: 0x1d4ed8,
+                color: 0x4f9185,
                 transparent: true,
-                opacity: 0.15
+                opacity: 0.2
             });
 
             const particlesMesh = new THREE.Points(geometry, material);
@@ -406,6 +759,11 @@
             "rose": { id: "rose", name: "Rose", gen: 3, father: "philemon", mother: "Ma Nyembezi", house: "house4" }, "hopewell": { id: "hopewell", name: "Hopewell", gen: 3, father: "philemon", mother: "MaSibanda", house: "house4" }, "irine": { id: "irine", name: "Irine", gen: 3, father: "philemon", mother: "MaSibanda", house: "house4" }, "charm": { id: "charm", name: "Charm", gen: 3, father: "philemon", mother: "MaSibanda", house: "house4" }, "thembinkosi": { id: "thembinkosi", name: "Thembinkosi", gen: 3, father: "philemon", mother: "MaSibanda", house: "house4" }, "doughton": { id: "doughton", name: "Doughton", gen: 3, father: "philemon", mother: "MaSibanda", house: "house4" }, "danford": { id: "danford", name: "Danford", gen: 3, father: "philemon", mother: "MaSibanda", house: "house4" }, "brighton": { id: "brighton", name: "Brighton", gen: 3, father: "philemon", mother: "MaDube", house: "house4" }, "simangaliphi": { id: "simangaliphi", name: "Simangaliphi", gen: 3, father: "philemon", mother: "MaDube", house: "house4" }, "silindelumusa": { id: "silindelumusa", name: "Silindelumusa", gen: 3, father: "philemon", mother: "MaDube", house: "house4" }, "sikhathele": { id: "sikhathele", name: "Sikhathele", gen: 3, father: "philemon", mother: "MaDube", house: "house4" }, "ntombizodwa": { id: "ntombizodwa", name: "Ntombizodwa", gen: 3, father: "philemon", mother: "MaDube", house: "house4" }, "xolani": { id: "xolani", name: "Xolani", gen: 3, father: "philemon", mother: "MaDube", house: "house4" }, "cleopas": { id: "cleopas", name: "Cleopas", gen: 3, father: "philemon", mother: "MaDube", house: "house4" }, "last": { id: "last", name: "Last", gen: 3, father: "philemon", mother: "MaDube", house: "house4" }, "painford": { id: "painford", name: "Painford", gen: 3, father: "philemon", mother: "MaDube", house: "house4" }, "onias": { id: "onias", name: "Onias", gen: 3, father: "philemon", mother: "MaNyathi", house: "house4" }, "bowen": { id: "bowen", name: "Bowen", gen: 3, father: "philemon", mother: "MaNyathi", house: "house4" }, "tholakele": { id: "tholakele", name: "Tholakele", gen: 3, father: "philemon", mother: "MaNyathi", house: "house4" }, "siduduzile": { id: "siduduzile", name: "Siduduzile", gen: 3, father: "philemon", mother: "MaNyathi", house: "house4" }, "sithulisiwe": { id: "sithulisiwe", name: "Sithulisiwe", gen: 3, father: "philemon", mother: "MaNyathi", house: "house4" }, "obvious": { id: "obvious", name: "Obvious", gen: 3, father: "philemon", mother: "MaNyathi", house: "house4" }, "mkhululi": { id: "mkhululi", name: "Mkhululi", gen: 3, father: "philemon", mother: "Ma Moyo", house: "house4" }
         };
 
+        // Biography and map details will be added here as they are provided.
+        const profileDetails = {};
+
+        let isFirstFocusRender = true;
+
         /* INITIALIZATION */
         window.onload = function() {
             renderFocusNode('mtalisi');
@@ -430,6 +788,10 @@
             const canvas = document.getElementById('focus-canvas');
             const member = familyData[memberId];
             if(!member) return;
+
+            const homeButton = document.getElementById('home-button');
+            homeButton.classList.toggle('invisible', memberId === 'mtalisi');
+            document.getElementById('mode-hint').textContent = 'Choose a wife, then a child';
 
             canvas.classList.remove('fade-in');
             canvas.classList.add('fade-out');
@@ -464,7 +826,7 @@
                 const genRoman = member.gen === 1 ? 'I' : member.gen === 2 ? 'II' : 'III';
 
                 html += `
-                    <div class="bg-brand-deepBlue/80 backdrop-blur-md border border-blue-400/30 rounded-[2rem] shadow-2xl w-full max-w-md overflow-hidden transform scale-105 z-30">
+                    <div class="person-card backdrop-blur-md rounded-[2rem] w-full max-w-md overflow-hidden transform scale-105 z-30">
                         <div class="p-8 md:p-10 text-center relative overflow-hidden">
                             <div class="absolute -top-10 -right-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl"></div>
                             <span class="text-[10px] font-medium uppercase tracking-[0.3em] text-blue-300 mb-2 block relative z-10">Isizukulwane ${genRoman}</span>
@@ -479,7 +841,7 @@
                 if (member.wives && member.wives.length > 0) {
                     html += `<div class="flex flex-col items-center w-full mt-16 relative z-10">`;
                     html += `<h3 class="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-300 mb-3 border-b border-blue-400/30 pb-2">Abafazi <span class="text-blue-300/50">(Wives)</span></h3>`;
-                    html += `<p class="text-xs text-blue-200/60 font-serif italic mb-7">Select a wife to view her children</p>`;
+                    html += `<p class="text-xs text-blue-200/70 font-serif italic mb-7">Tap a wife to see her children</p>`;
                     html += `<div class="w-full max-w-6xl overflow-x-auto px-1 pt-2 pb-6">`;
                     html += `<div class="flex flex-nowrap w-max min-w-full justify-start md:justify-center gap-4">`;
                     
@@ -493,15 +855,16 @@
                                 aria-expanded="false"
                                 aria-controls="${wifeId}"
                                 onclick="toggleHouse('${wifeId}', '${member.id}', '${wifeButtonId}')"
-                                class="spouse-card glass-card rounded-2xl px-5 py-4 min-w-[220px] max-w-[260px] flex items-center justify-between gap-4 text-left cursor-pointer group"
+                                class="spouse-card glass-card rounded-2xl px-5 py-5 min-w-[245px] max-w-[290px] flex items-center justify-between gap-4 text-left cursor-pointer group"
                             >
                                 <span class="flex items-center gap-3 min-w-0">
-                                    <span class="spouse-icon w-10 h-10 shrink-0 rounded-full bg-brand-deepBlue text-blue-300 border border-blue-400/30 flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:bg-brand-gold/20 group-hover:text-brand-gold group-hover:border-brand-gold/40 transition-all">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                                    <span class="spouse-icon w-10 h-10 shrink-0 rounded-full bg-brand-gold text-brand-deepBlue border border-brand-accent/60 flex items-center justify-center shadow-inner group-hover:scale-110 transition-all font-serif text-lg font-semibold">
+                                        ${wIdx + 1}
                                     </span>
                                     <span class="min-w-0">
-                                        <span class="text-[9px] uppercase tracking-widest text-blue-300/70 font-medium block mb-1">Umama / Wife</span>
+                                        <span class="text-[9px] uppercase tracking-widest text-blue-300/80 font-semibold block mb-1">Wife ${wIdx + 1}</span>
                                         <span class="font-serif font-light text-white text-lg leading-tight block">${w.name}</span>
+                                        <span class="text-[10px] text-blue-300/60 mt-1.5 block">${w.children.length} ${w.children.length === 1 ? 'child' : 'children'}</span>
                                     </span>
                                 </span>
                                 <svg class="spouse-chevron shrink-0 w-5 h-5 text-blue-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"></path></svg>
@@ -516,9 +879,13 @@
                         const wifeButtonId = `button-${wifeId}`;
                         html += `
                             <section id="${wifeId}" data-house-owner="${member.id}" aria-labelledby="${wifeButtonId}" class="hidden glass-card rounded-[2rem] p-6 md:p-8">
-                                <div class="text-center mb-7">
-                                    <span class="text-[10px] uppercase tracking-[0.25em] text-blue-300/70 font-medium block mb-1">Children of ${member.name} and</span>
-                                    <h4 class="font-serif font-light text-white text-2xl">${w.name}</h4>
+                                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-7">
+                                    <div class="text-center sm:text-left">
+                                        <span class="inline-flex items-center rounded-full bg-brand-gold/15 border border-brand-gold/30 text-brand-accent text-[9px] uppercase tracking-widest font-semibold px-3 py-1 mb-3">Wife ${wIdx + 1}</span>
+                                        <span class="text-[10px] uppercase tracking-[0.25em] text-blue-300/70 font-medium block mb-1">Children of ${member.name} and</span>
+                                        <h4 class="font-serif font-light text-white text-2xl">${w.name}</h4>
+                                    </div>
+                                    <button type="button" onclick="toggleHouse('${wifeId}', '${member.id}', '${wifeButtonId}')" class="self-center sm:self-start text-[10px] uppercase tracking-widest text-blue-200/70 hover:text-white border border-blue-400/20 hover:border-blue-400/50 rounded-full px-4 py-2 transition-colors">Close children</button>
                                 </div>
                                 <div class="flex flex-wrap justify-center gap-4">
                         `;
@@ -535,10 +902,10 @@
                     html += `</div>`;
                 }
 
-                if (!member.wives && member.gen === 3) {
+                if (!member.wives) {
                     html += `
                         <div class="mt-12 text-center text-blue-300/50 italic text-sm font-serif">
-                            End of documented lineage for this branch.
+                            No children are recorded for this branch yet.
                         </div>
                     `;
                 }
@@ -548,18 +915,95 @@
                 requestAnimationFrame(() => {
                     canvas.classList.remove('fade-out');
                     canvas.classList.add('fade-in');
+                    if (!isFirstFocusRender) {
+                        document.getElementById('view-explorer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                    isFirstFocusRender = false;
                 });
             }, 400);
+        }
+
+        function renderPersonProfile(memberId) {
+            const canvas = document.getElementById('focus-canvas');
+            const member = familyData[memberId];
+            if (!member) return;
+
+            const details = profileDetails[memberId] || {};
+            const genRoman = member.gen === 1 ? 'I' : member.gen === 2 ? 'II' : 'III';
+            const homeButton = document.getElementById('home-button');
+            homeButton.classList.remove('invisible');
+            document.getElementById('mode-hint').textContent = 'Person profile';
+
+            canvas.classList.remove('fade-in');
+            canvas.classList.add('fade-out');
+
+            setTimeout(() => {
+                const biography = details.bio
+                    ? `<p class="text-blue-200 leading-relaxed">${details.bio}</p>`
+                    : `<div class="min-h-[250px] flex items-center justify-center border border-dashed border-blue-300/25 rounded-2xl bg-brand-deepBlue/25 p-8 text-center">
+                           <div>
+                               <span class="text-3xl text-brand-gold/70 block mb-3">✦</span>
+                               <p class="text-blue-200/60 font-serif italic">Biography details will be added here.</p>
+                           </div>
+                       </div>`;
+
+                const map = details.mapEmbedUrl
+                    ? `<iframe title="Google Map for ${member.name}" src="${details.mapEmbedUrl}" class="w-full min-h-[320px] rounded-2xl border-0" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+                    : `<div class="map-placeholder min-h-[320px] flex items-center justify-center rounded-2xl border border-dashed border-blue-300/25 p-8 text-center">
+                           <div>
+                               <span class="w-14 h-14 mx-auto mb-4 rounded-full bg-brand-gold/15 border border-brand-gold/30 text-brand-accent flex items-center justify-center text-2xl">⌖</span>
+                               <p class="text-blue-200/60 font-serif italic">Google Maps location will be added here.</p>
+                           </div>
+                       </div>`;
+
+                canvas.innerHTML = `
+                    <div class="w-full max-w-5xl">
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mb-6">
+                            <button type="button" onclick="switchTab('directory')" class="glass-card rounded-full px-5 py-2.5 text-sm text-blue-200 hover:text-white">← Back to directory</button>
+                            <button type="button" onclick="renderFocusNode('${member.id}')" class="rounded-full px-5 py-2.5 text-sm font-semibold bg-brand-gold text-brand-deepBlue hover:bg-brand-accent transition-colors">View family branch →</button>
+                        </div>
+
+                        <div class="person-card rounded-[2rem] px-6 py-8 md:px-10 md:py-10 text-center mb-7">
+                            <span class="text-[10px] font-semibold uppercase tracking-[0.25em] text-blue-300 block mb-2">Person Profile · Generation ${genRoman}</span>
+                            <h2 class="font-serif text-4xl md:text-5xl text-white">${member.name}</h2>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <section class="profile-section rounded-[2rem] p-6 md:p-8">
+                                <div class="mb-5">
+                                    <span class="text-[10px] uppercase tracking-[0.22em] text-brand-gold font-bold block mb-1">Life story</span>
+                                    <h3 class="font-serif text-2xl text-white">Biography</h3>
+                                </div>
+                                ${biography}
+                            </section>
+
+                            <section class="profile-section rounded-[2rem] p-6 md:p-8">
+                                <div class="mb-5">
+                                    <span class="text-[10px] uppercase tracking-[0.22em] text-brand-gold font-bold block mb-1">Places connected to this person</span>
+                                    <h3 class="font-serif text-2xl text-white">Google Maps</h3>
+                                </div>
+                                ${map}
+                            </section>
+                        </div>
+                    </div>
+                `;
+
+                requestAnimationFrame(() => {
+                    canvas.classList.remove('fade-out');
+                    canvas.classList.add('fade-in');
+                    document.getElementById('view-explorer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+            }, 300);
         }
 
         function createNodeCard(id, label) {
             const m = familyData[id];
             if(!m) return '';
             return `
-                <div onclick="renderFocusNode('${id}')" class="glass-card px-6 py-4 cursor-pointer text-center w-36 md:w-44 flex flex-col items-center justify-center group rounded-2xl">
-                    <h4 class="font-serif text-lg font-light text-white group-hover:text-brand-gold transition-colors leading-tight">${m.name.split(' ')[0]}</h4>
+                <button type="button" onclick="renderFocusNode('${id}')" aria-label="View ${m.name}'s family" class="family-node-card glass-card px-5 py-5 cursor-pointer text-center w-40 md:w-48 min-h-[104px] flex flex-col items-center justify-center group rounded-2xl">
+                    <h4 class="font-serif text-lg font-light text-white group-hover:text-brand-gold transition-colors leading-tight">${m.name}</h4>
                     <span class="text-[9px] uppercase tracking-widest text-blue-300 mt-2 font-medium block">Gen ${m.gen}</span>
-                </div>
+                </button>
             `;
         }
 
@@ -577,6 +1021,7 @@
             if (shouldOpen) {
                 selectedHouse.classList.remove('hidden');
                 selectedButton.setAttribute('aria-expanded', 'true');
+                setTimeout(() => selectedHouse.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 60);
             }
         }
 
@@ -603,7 +1048,7 @@
 
             arr.forEach(m => {
                 grid.innerHTML += `
-                    <div onclick="renderFocusNode('${m.id}'); switchTab('explorer');" class="glass-card rounded-2xl p-5 cursor-pointer group">
+                    <button type="button" onclick="switchTab('explorer'); renderPersonProfile('${m.id}');" aria-label="Open ${m.name}'s profile" class="glass-card rounded-2xl p-5 cursor-pointer group text-left w-full">
                         <div class="flex justify-between items-start mb-3 border-b border-blue-400/20 pb-3">
                             <h4 class="font-serif font-light text-lg text-white group-hover:text-brand-gold transition-colors">${m.name}</h4>
                             <span class="bg-blue-500/20 text-blue-200 border border-blue-400/30 text-[9px] font-medium px-2 py-0.5 rounded-full uppercase tracking-widest">Gen ${m.gen}</span>
@@ -612,7 +1057,7 @@
                             <p class="flex justify-between"><span>Father:</span> <span class="text-white font-medium">${m.father || 'Unknown'}</span></p>
                             <p class="flex justify-between"><span>Mother:</span> <span class="text-white font-medium">${m.mother ? m.mother.split('(')[0] : 'Unknown'}</span></p>
                         </div>
-                    </div>
+                    </button>
                 `;
             });
         }
