@@ -13,9 +13,6 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Three.js for a sleek atmospheric background -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
     <!-- Premium Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -117,6 +114,45 @@
                 linear-gradient(90deg, rgba(185, 154, 100, 0.06) 1px, transparent 1px),
                 linear-gradient(rgba(185, 154, 100, 0.045) 1px, transparent 1px);
             background-size: 72px 72px;
+        }
+
+        .star-field {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .sky-star {
+            position: absolute;
+            left: var(--star-x);
+            top: var(--star-y);
+            width: var(--star-size);
+            height: var(--star-size);
+            color: var(--star-color);
+            background: currentColor;
+            clip-path: polygon(50% 0%, 61% 34%, 98% 35%, 68% 56%, 79% 91%, 50% 70%, 21% 91%, 32% 56%, 2% 35%, 39% 34%);
+            opacity: var(--star-opacity);
+            filter: drop-shadow(0 0 3px currentColor) drop-shadow(0 0 7px rgba(217, 196, 157, 0.32));
+            transform: rotate(var(--star-rotation));
+            animation: shaped-star-twinkle var(--star-speed) ease-in-out var(--star-delay) infinite alternate;
+        }
+
+        .sky-star.sparkle {
+            clip-path: polygon(50% 0%, 59% 40%, 100% 50%, 59% 60%, 50% 100%, 41% 60%, 0% 50%, 41% 40%);
+        }
+
+        @keyframes shaped-star-twinkle {
+            0% {
+                opacity: calc(var(--star-opacity) * 0.42);
+                transform: rotate(var(--star-rotation)) scale(0.72);
+            }
+            60% { opacity: var(--star-opacity); }
+            100% {
+                opacity: var(--star-opacity);
+                transform: rotate(var(--star-rotation)) scale(1.14);
+            }
         }
         
         .glass-panel {
@@ -352,6 +388,11 @@
             background: linear-gradient(145deg, rgba(238, 232, 220, 0.06), rgba(185, 154, 100, 0.025));
             border: 1px solid rgba(185, 154, 100, 0.24);
             box-shadow: 0 18px 36px -24px rgba(0, 0, 0, 0.75);
+        }
+
+        #view-directory {
+            content-visibility: auto;
+            contain-intrinsic-size: 1px 900px;
         }
 
         .map-placeholder {
@@ -743,6 +784,10 @@
             html { background: #0b0a09; }
 
             .family-tree-art { display: none; }
+            #bg-canvas { display: none !important; }
+
+            .star-field { opacity: 0.72; }
+            .sky-star:nth-child(n + 38) { display: none; }
 
             body {
                 background-attachment: scroll;
@@ -759,9 +804,14 @@
 
             .glass-panel {
                 background: linear-gradient(150deg, rgba(24, 20, 16, 0.97), rgba(10, 9, 8, 0.96));
-                backdrop-filter: blur(12px);
-                -webkit-backdrop-filter: blur(12px);
+                backdrop-filter: blur(7px);
+                -webkit-backdrop-filter: blur(7px);
                 box-shadow: 0 18px 38px -20px rgba(0, 0, 0, 0.72), inset 0 1px 0 rgba(255, 255, 255, 0.09);
+            }
+
+            .glass-card {
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
             }
 
             .glass-card:hover { transform: none; }
@@ -1145,6 +1195,9 @@
     <!-- Constellation / Glowing Network Background -->
     <canvas id="bg-canvas" class="fixed inset-0 w-full h-full z-[-1] pointer-events-none opacity-30"></canvas>
 
+    <!-- Five-point stars and celestial sparkles -->
+    <div id="star-field" class="star-field" aria-hidden="true"></div>
+
     <!-- Header -->
     <header class="site-header pt-6 pb-4 px-6 relative z-10 flex flex-col items-center justify-center max-w-7xl mx-auto w-full gap-2 text-center">
         
@@ -1309,6 +1362,39 @@
     </main>
 
     <script>
+        /* --- SHAPED NIGHT-SKY STARS --- */
+        const initStars = () => {
+            const field = document.getElementById('star-field');
+            if (!field) return;
+
+            const colors = ['#EEE8DC', '#D9C49D', '#B99A64', '#F5E7C8'];
+            let seed = 20260713;
+            const random = () => {
+                seed = (seed * 1664525 + 1013904223) % 4294967296;
+                return seed / 4294967296;
+            };
+
+            const fragment = document.createDocumentFragment();
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            const mobileDevice = window.matchMedia('(max-width: 768px)').matches;
+            const starCount = connection?.saveData ? 16 : mobileDevice ? 28 : 56;
+            for (let index = 0; index < starCount; index++) {
+                const star = document.createElement('span');
+                const featured = index % 9 === 0;
+                star.className = `sky-star ${index % 4 === 0 ? 'sparkle' : ''}`;
+                star.style.setProperty('--star-x', `${(random() * 96 + 2).toFixed(2)}%`);
+                star.style.setProperty('--star-y', `${(random() * 96 + 2).toFixed(2)}%`);
+                star.style.setProperty('--star-size', `${(featured ? 10 + random() * 7 : 4 + random() * 6).toFixed(1)}px`);
+                star.style.setProperty('--star-color', colors[index % colors.length]);
+                star.style.setProperty('--star-opacity', (0.42 + random() * 0.48).toFixed(2));
+                star.style.setProperty('--star-rotation', `${Math.round(random() * 72 - 36)}deg`);
+                star.style.setProperty('--star-speed', `${(3.8 + random() * 5.5).toFixed(1)}s`);
+                star.style.setProperty('--star-delay', `${(-random() * 8).toFixed(1)}s`);
+                fragment.appendChild(star);
+            }
+            field.replaceChildren(fragment);
+        };
+
         /* --- THREE.JS BACKGROUND: FAMILY CONSTELLATION --- */
         const initBackground = () => {
             const canvas = document.getElementById('bg-canvas');
@@ -1381,12 +1467,37 @@
             });
         };
 
-        try {
-            initBackground();
-        } catch (error) {
-            document.getElementById('bg-canvas').style.display = 'none';
-            console.warn('Animated background unavailable; using the heritage background instead.', error);
-        }
+        const initAtmosphere = async () => {
+            const canvas = document.getElementById('bg-canvas');
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            const slowConnection = connection?.saveData || /(^|-)2g$/.test(connection?.effectiveType || '');
+            const mobileDevice = window.matchMedia('(max-width: 768px)').matches;
+
+            if (!canvas || mobileDevice || slowConnection) {
+                if (canvas) canvas.style.display = 'none';
+                return;
+            }
+
+            try {
+                if (typeof THREE === 'undefined') {
+                    await new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+                        script.async = true;
+                        script.onload = resolve;
+                        script.onerror = reject;
+                        document.head.appendChild(script);
+                    });
+                }
+                initBackground();
+            } catch (error) {
+                canvas.style.display = 'none';
+                console.warn('Animated background unavailable; using the lightweight sky instead.', error);
+            }
+        };
+
+        initStars();
+        initAtmosphere();
 
         /* --- CORE DATA ARCHITECTURE --- */
         const familyData = {
@@ -1426,12 +1537,17 @@
         const profileDetails = {};
 
         let isFirstFocusRender = true;
+        let directoryReady = false;
 
         /* INITIALIZATION */
-        window.onload = function() {
+        const startApp = () => {
             renderFocusNode('mtalisi');
-            updateDirectory();
         };
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', startApp, { once: true });
+        } else {
+            startApp();
+        }
 
         /* TAB NAVIGATION SYSTEM */
         function switchTab(tabId) {
@@ -1444,6 +1560,10 @@
             const btn = document.getElementById(`tab-${tabId}`);
             btn.classList.add('bg-blue-500/20', 'text-white', 'border-blue-400/30');
             btn.classList.remove('text-blue-200/60', 'border-transparent');
+            if (tabId === 'directory' && !directoryReady) {
+                updateDirectory();
+                directoryReady = true;
+            }
         }
 
         /* 1. LINEAGE FOCUS EXPLORER */
@@ -1459,6 +1579,7 @@
             canvas.classList.remove('fade-in');
             canvas.classList.add('fade-out');
 
+            const renderDelay = isFirstFocusRender ? 0 : 260;
             setTimeout(() => {
                 let html = '';
 
@@ -1505,7 +1626,9 @@
                     html += `<div class="wives-tier flex flex-col items-center w-full mt-16 relative z-10">`;
                     html += `<h3 class="sr-only">Abafazi (Wives of ${member.name})</h3>`;
                     html += `<div class="spouse-tree" style="--wife-count: ${member.wives.length}" role="list" aria-label="Wives of ${member.name}">`;
-                    html += createFamilyTreeArtwork(member.wives.length);
+                    if (window.matchMedia('(min-width: 901px)').matches) {
+                        html += createFamilyTreeArtwork(member.wives.length);
+                    }
                     html += `<span class="tree-junction" aria-hidden="true"></span>`;
                     
                     member.wives.forEach((w, wIdx) => {
@@ -1587,7 +1710,7 @@
                     }
                     isFirstFocusRender = false;
                 });
-            }, 400);
+            }, renderDelay);
         }
 
         function renderPersonProfile(memberId) {
@@ -1759,14 +1882,12 @@
             if(sort === 'az') arr.sort((a,b) => a.name.localeCompare(b.name));
             else arr.sort((a,b) => a.gen - b.gen);
 
-            grid.innerHTML = '';
             if(arr.length === 0) {
                 grid.innerHTML = `<div class="col-span-full py-12 text-center text-blue-300/60 font-serif italic">No ancestors found matching "${query}".</div>`;
                 return;
             }
 
-            arr.forEach(m => {
-                grid.innerHTML += `
+            grid.innerHTML = arr.map(m => `
                     <button type="button" onclick="switchTab('explorer'); renderPersonProfile('${m.id}');" aria-label="Open ${m.name}'s profile" class="glass-card rounded-2xl p-5 cursor-pointer group text-left w-full">
                         <div class="flex justify-between items-start mb-3 border-b border-blue-400/20 pb-3">
                             <h4 class="font-serif font-light text-lg text-white group-hover:text-brand-gold transition-colors">${m.name}</h4>
@@ -1777,8 +1898,7 @@
                             <p class="flex justify-between"><span>Mother:</span> <span class="text-white font-medium">${m.mother ? m.mother.split('(')[0] : 'Unknown'}</span></p>
                         </div>
                     </button>
-                `;
-            });
+                `).join('');
         }
 
     </script>
